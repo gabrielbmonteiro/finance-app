@@ -1,6 +1,6 @@
-# Narrapay
+# ??????
 
-Narrapay é um aplicativo financeiro de gerenciamento de despesas, rateio e pendências construído para a plataforma Android, focado em trazer uma experiência fluida para acompanhamento de gastos coletivos e individuais.
+?????? é um aplicativo financeiro de gerenciamento de despesas, rateio e pendências construído para a plataforma Android, focado em trazer uma experiência fluida para acompanhamento de gastos coletivos e individuais.
 
 ## ✨ Funcionalidades
 - **Dashboard Interativo**: Visão geral dos gastos por mês com gráficos em anel dinâmicos.
