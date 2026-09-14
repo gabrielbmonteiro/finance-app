@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-14T03:10:04.349Z" hostname="DESKTOP_NITRO5" time="0.239">
+  <properties/>
+  <testcase name="deve_lancar_excecao_quando_transacao_for_nula" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.187"/>
+  <testcase name="deve_lancar_excecao_quando_soma_for_divergente" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.013"/>
+  <testcase name="deve_lancar_excecao_quando_transacao_id_for_vazio" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.006"/>
+  <testcase name="deve_falhar_se_houver_valor_negativo_no_rateio" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.007"/>
+  <testcase name="deve_salvar_rateio_quando_soma_for_exata" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.015"/>
+  <testcase name="deve_passar_mesmo_com_imprecisao_de_ponto_flutuante" classname="com.narrapay.domain.usecase.AtribuirValoresUseCaseTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

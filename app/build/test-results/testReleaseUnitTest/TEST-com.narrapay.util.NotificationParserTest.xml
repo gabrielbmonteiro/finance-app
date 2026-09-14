@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.narrapay.util.NotificationParserTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-14T03:10:11.218Z" hostname="DESKTOP_NITRO5" time="0.009">
+  <properties/>
+  <testcase name="deve_retornar_nulo_para_texto_nao_financeiro" classname="com.narrapay.util.NotificationParserTest" time="0.001"/>
+  <testcase name="deve_extrair_valor_decimal_com_virgula" classname="com.narrapay.util.NotificationParserTest" time="0.005"/>
+  <testcase name="deve_extrair_valor_milhar_com_ponto" classname="com.narrapay.util.NotificationParserTest" time="0.001"/>
+  <testcase name="deve_extrair_nome_do_estabelecimento" classname="com.narrapay.util.NotificationParserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
