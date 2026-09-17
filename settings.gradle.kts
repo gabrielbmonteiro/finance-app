@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Narrapay"
+rootProject.name = "TrilhaCusto"
 include(":app")
