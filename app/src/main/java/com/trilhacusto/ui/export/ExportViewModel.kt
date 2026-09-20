@@ -73,7 +73,7 @@ class ExportViewModel(
         _uiState.value = _uiState.value.copy(errorMessage = null, exportSuccessUri = null)
     }
 
-    fun exportar(context: Context, isShare: Boolean) {
+    fun exportar(context: Context, isShare: Boolean, targetUri: Uri? = null) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, exportSuccessUri = null, isShare = isShare)
             
@@ -122,7 +122,8 @@ class ExportViewModel(
                     todasPessoas = todasPessoas,
                     formato = _uiState.value.formato,
                     isShare = isShare,
-                    pessoasSelecionadas = pessoasSelecionadas
+                    pessoasSelecionadas = pessoasSelecionadas,
+                    targetUri = targetUri
                 )
                 
                 if (uri != null) {

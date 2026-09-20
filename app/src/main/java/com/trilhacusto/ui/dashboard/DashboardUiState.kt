@@ -22,6 +22,7 @@ data class DashboardUiState(
     
     val showSyncLoading: Boolean = false,
     val syncStatus: SyncStatus? = null,
+    val lastSyncTime: Long? = null,
 
     val showFaturaConfigDialog: Boolean = false,
     val showMesAnoDialog: Boolean = false,

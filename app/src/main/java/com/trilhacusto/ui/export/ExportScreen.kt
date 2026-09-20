@@ -1,6 +1,9 @@
 package com.trilhacusto.ui.export
 
 import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,17 +42,22 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trilhacusto.ui.components.GlassCard
 import com.trilhacusto.ui.components.GlassErrorSnackbar
+import com.trilhacusto.ui.theme.GreenPositive
 import com.trilhacusto.ui.theme.PrimaryAccent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +68,15 @@ fun ExportScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showSuccessModal by remember { mutableStateOf(false) }
+
+    val createDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(if (uiState.formato == ExportFormat.PDF) "application/pdf" else "image/jpeg")
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.exportar(context, isShare = false, targetUri = it)
+        }
+    }
 
     LaunchedEffect(uiState.exportSuccessUri) {
         uiState.exportSuccessUri?.let { uri ->
@@ -70,7 +88,7 @@ fun ExportScreen(
                 }
                 context.startActivity(Intent.createChooser(shareIntent, "Compartilhar Fatura"))
             } else {
-                // For direct download it's already saved via MediaStore in InvoiceExportHelper
+                showSuccessModal = true
             }
             viewModel.limparMensagem()
         }
@@ -168,7 +186,13 @@ fun ExportScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { viewModel.exportar(context, isShare = false) },
+                        onClick = { 
+                            val sdf = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault())
+                            val dateStr = sdf.format(java.util.Date())
+                            val ext = if (uiState.formato == ExportFormat.PDF) ".pdf" else ".jpg"
+                            val filename = "Fatura_TrilhaCusto_$dateStr$ext"
+                            createDocumentLauncher.launch(filename)
+                        },
                         modifier = Modifier.weight(1f).height(50.dp),
                         shape = RoundedCornerShape(25.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f))
@@ -210,6 +234,20 @@ fun ExportScreen(
                 onDismiss = { viewModel.limparMensagem() },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
             )
+
+            if (showSuccessModal) {
+                androidx.compose.ui.window.Dialog(onDismissRequest = { showSuccessModal = false }) {
+                    GlassCard(
+                        containerColor = Color.Black.copy(alpha = 0.6f)
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GreenPositive, modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Arquivo salvo com sucesso!", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+                }
+            }
         }
     }
 }

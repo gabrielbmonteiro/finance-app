@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -56,6 +57,7 @@ fun ExtratoScreen(
     onExcluirClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToPendencias: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     onLimparErro: () -> Unit,
     onTogglePrivacyMode: () -> Unit
 ) {
@@ -98,6 +100,12 @@ fun ExtratoScreen(
                     label = { Text("Pendências") },
                     selected = false,
                     onClick = { onNavigateToPendencias() }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Conta") },
+                    label = { Text("Conta") },
+                    selected = false,
+                    onClick = { onNavigateToAccount() }
                 )
             }
         }

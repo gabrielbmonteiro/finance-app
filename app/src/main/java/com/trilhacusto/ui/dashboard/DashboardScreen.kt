@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -61,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.trilhacusto.ui.components.GlassConfirmDialog
 import com.trilhacusto.ui.components.GlassTextField
 import com.trilhacusto.ui.components.TransacaoCardItem
@@ -84,7 +86,8 @@ fun DashboardScreen(
     onFecharConfiguracao: () -> Unit,
     onAbrirConfiguracao: () -> Unit,
     onTogglePrivacyMode: () -> Unit,
-    onNavigateToExport: () -> Unit
+    onNavigateToExport: () -> Unit,
+    onNavigateToAccount: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -155,18 +158,18 @@ fun DashboardScreen(
                     selected = false,
                     onClick = { onNavigateToPendencias() }
                 )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Conta") },
+                    label = { Text("Conta") },
+                    selected = false,
+                    onClick = { onNavigateToAccount() }
+                )
             }
         }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null) {
-                Text(
-                    text = uiState.error,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp)
-                )
             } else {
                 DashboardContent(
                     uiState = uiState,
@@ -191,7 +194,9 @@ fun DashboardScreen(
             }
         } else if (uiState.syncStatus != null) {
             androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
-                com.trilhacusto.ui.components.GlassCard {
+                com.trilhacusto.ui.components.GlassCard(
+                    containerColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f)
+                ) {
                     Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         if (uiState.syncStatus == SyncStatus.SUCCESS) {
                             Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GreenPositive, modifier = Modifier.size(48.dp))
@@ -201,6 +206,14 @@ fun DashboardScreen(
                             Icon(Icons.Default.Clear, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(16.dp))
                             Text("Erro na Sincronização.", fontWeight = FontWeight.Bold)
+                            if (uiState.error != null) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = uiState.error,
+                                    color = MaterialTheme.colorScheme.error,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
@@ -364,12 +377,24 @@ private fun DashboardContent(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            uiState.faturaTotal.toCurrencyString(uiState.isPrivacyModeEnabled),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
+                        Column {
+                            Text(
+                                uiState.faturaTotal.toCurrencyString(uiState.isPrivacyModeEnabled),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            if (uiState.lastSyncTime != null) {
+                                val sdf = java.text.SimpleDateFormat("dd/MM/yy', 'HH:mm", java.util.Locale("pt", "BR"))
+                                val timeStr = sdf.format(java.util.Date(uiState.lastSyncTime))
+                                Text(
+                                    text = "Última atualização $timeStr",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
                         IconButton(onClick = onNavigateToExport) {
                             Icon(
                                 Icons.Default.Download,

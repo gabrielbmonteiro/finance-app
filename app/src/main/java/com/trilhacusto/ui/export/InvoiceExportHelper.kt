@@ -32,7 +32,8 @@ object InvoiceExportHelper {
         todasPessoas: List<PessoaEntity>,
         formato: ExportFormat,
         isShare: Boolean,
-        pessoasSelecionadas: Set<Long>
+        pessoasSelecionadas: Set<Long>,
+        targetUri: Uri? = null
     ): Uri? {
         val fileName = "Fatura_TrilhaCusto_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}"
         
@@ -46,10 +47,10 @@ object InvoiceExportHelper {
         
         return if (formato == ExportFormat.PDF) {
             val pdfDoc = gerarPdf(transacoesFiltradas, todasPessoas, pessoasSelecionadas)
-            salvarPdf(context, pdfDoc, fileName, isShare)
+            salvarPdf(context, pdfDoc, fileName, isShare, targetUri)
         } else {
             val bitmap = gerarBitmap(transacoesFiltradas, todasPessoas, pessoasSelecionadas)
-            salvarBitmap(context, bitmap, fileName, isShare)
+            salvarBitmap(context, bitmap, fileName, isShare, targetUri)
         }
     }
 
@@ -170,10 +171,16 @@ object InvoiceExportHelper {
         return bitmap
     }
 
-    private fun salvarPdf(context: Context, pdfDocument: PdfDocument, fileName: String, isShare: Boolean): Uri? {
+    private fun salvarPdf(context: Context, pdfDocument: PdfDocument, fileName: String, isShare: Boolean, targetUri: Uri?): Uri? {
         val name = "$fileName.pdf"
         try {
-            if (isShare) {
+            if (targetUri != null) {
+                context.contentResolver.openOutputStream(targetUri)?.use { os ->
+                    pdfDocument.writeTo(os)
+                }
+                pdfDocument.close()
+                return targetUri
+            } else if (isShare) {
                 val file = File(context.cacheDir, name)
                 FileOutputStream(file).use { pdfDocument.writeTo(it) }
                 pdfDocument.close()
@@ -190,10 +197,15 @@ object InvoiceExportHelper {
         }
     }
 
-    private fun salvarBitmap(context: Context, bitmap: Bitmap, fileName: String, isShare: Boolean): Uri? {
+    private fun salvarBitmap(context: Context, bitmap: Bitmap, fileName: String, isShare: Boolean, targetUri: Uri?): Uri? {
         val name = "$fileName.jpg"
         try {
-            if (isShare) {
+            if (targetUri != null) {
+                context.contentResolver.openOutputStream(targetUri)?.use { os ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, os)
+                }
+                return targetUri
+            } else if (isShare) {
                 val file = File(context.cacheDir, name)
                 FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
                 return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)

@@ -5,12 +5,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -43,7 +45,7 @@ import com.trilhacusto.ui.transacao.TransacaoFormScreen
 import com.trilhacusto.ui.transacao.TransacaoFormViewModel
 import org.koin.androidx.compose.koinViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -90,9 +93,93 @@ class MainActivity : ComponentActivity() {
                         composable("splash") {
                             com.trilhacusto.ui.splash.SplashScreen(
                                 onSplashFinished = {
-                                    navController.navigate("dashboard") {
+                                    navController.navigate("auth") {
                                         popUpTo("splash") { inclusive = true }
                                     }
+                                }
+                            )
+                        }
+
+                        composable("register") {
+                            val viewModel: com.trilhacusto.ui.auth.RegisterViewModel = koinViewModel()
+                            com.trilhacusto.ui.auth.RegisterScreen(
+                                viewModel = viewModel,
+                                onNavigateNext = {
+                                    navController.navigate("onboarding") {
+                                        popUpTo("auth") { inclusive = true }
+                                    }
+                                },
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        composable("auth") {
+                            val viewModel: com.trilhacusto.ui.auth.AuthViewModel = koinViewModel()
+                            com.trilhacusto.ui.auth.AuthScreen(
+                                viewModel = viewModel,
+                                onNavigateToDashboard = {
+                                    navController.navigate("dashboard") {
+                                        popUpTo("auth") { inclusive = true }
+                                    }
+                                },
+                                onNavigateToOnboarding = {
+                                    navController.navigate("onboarding") {
+                                        popUpTo("auth") { inclusive = true }
+                                    }
+                                },
+                                onNavigateToRegister = {
+                                    navController.navigate("register")
+                                }
+                            )
+                        }
+
+                        composable("onboarding") {
+                            val viewModel: com.trilhacusto.ui.onboarding.OnboardingViewModel = koinViewModel()
+                            com.trilhacusto.ui.onboarding.OnboardingScreen(
+                                viewModel = viewModel,
+                                onNavigateToDashboard = {
+                                    navController.navigate("dashboard") {
+                                        popUpTo("onboarding") { inclusive = true }
+                                    }
+                                },
+                                onNavigateBack = {
+                                    if (navController.previousBackStackEntry != null) {
+                                        navController.popBackStack()
+                                    } else {
+                                        navController.navigate("dashboard") {
+                                            popUpTo("onboarding") { inclusive = true }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        composable("account") {
+                            val viewModel: com.trilhacusto.ui.account.AccountViewModel = koinViewModel()
+                            com.trilhacusto.ui.account.AccountScreen(
+                                viewModel = viewModel,
+                                onNavigateToHome = {
+                                    navController.popBackStack("dashboard", inclusive = false)
+                                },
+                                onNavigateToExtrato = {
+                                    navController.navigate("extrato") {
+                                        popUpTo("dashboard") { inclusive = false }
+                                    }
+                                },
+                                onNavigateToPendencias = {
+                                    navController.navigate("pendencias") {
+                                        popUpTo("dashboard") { inclusive = false }
+                                    }
+                                },
+                                onNavigateToAuth = {
+                                    navController.navigate("auth") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                onNavigateToOnboarding = {
+                                    navController.navigate("onboarding")
                                 }
                             )
                         }
@@ -127,7 +214,8 @@ class MainActivity : ComponentActivity() {
                                 onFecharConfiguracao = { viewModel.setShowConfigDialog(false) },
                                 onSalvarConfiguracao = { f, v -> viewModel.salvarConfiguracaoFatura(f, v) },
                                 onTogglePrivacyMode = { viewModel.togglePrivacyMode() },
-                                onNavigateToExport = { navController.navigate("export") }
+                                onNavigateToExport = { navController.navigate("export") },
+                                onNavigateToAccount = { navController.navigate("account") }
                             )
                         }
 
@@ -170,6 +258,11 @@ class MainActivity : ComponentActivity() {
                                         popUpTo("dashboard") { inclusive = false }
                                     }
                                 },
+                                onNavigateToAccount = {
+                                    navController.navigate("account") {
+                                        popUpTo("dashboard") { inclusive = false }
+                                    }
+                                },
                                 onLimparErro = { viewModel.limparErro() },
                                 onTogglePrivacyMode = { viewModel.togglePrivacyMode() }
                             )
@@ -209,6 +302,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToExtrato = {
                                     navController.navigate("extrato") {
+                                        popUpTo("dashboard") { inclusive = false }
+                                    }
+                                },
+                                onNavigateToAccount = {
+                                    navController.navigate("account") {
                                         popUpTo("dashboard") { inclusive = false }
                                     }
                                 },

@@ -21,12 +21,15 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+import com.trilhacusto.data.repository.UserPreferencesRepository
+
 class DashboardViewModel(
     private val transacaoDao: TransacaoDao,
     private val configuracoesDao: ConfiguracoesDao,
     private val pessoaDao: PessoaDao,
     private val processarTransacaoPluggyUseCase: ProcessarTransacaoPluggyUseCase,
-    private val pluggyNetworkRepository: PluggyNetworkRepository
+    private val pluggyNetworkRepository: PluggyNetworkRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState(isLoading = true))
@@ -42,10 +45,11 @@ class DashboardViewModel(
         viewModelScope.launch {
             combine(
                 configuracoesDao.getConfiguracoes(),
-                mesAnoFlow
-            ) { config, mesAno ->
-                Pair(config, mesAno)
-            }.collectLatest { (config, mesAno) ->
+                mesAnoFlow,
+                userPreferencesRepository.lastSyncTime
+            ) { config, mesAno, lastSync ->
+                Triple(config, mesAno, lastSync)
+            }.collectLatest { (config, mesAno, lastSync) ->
                 val fechamento = config?.diaFechamento ?: 25
                 val (mesSelecionado, anoSelecionado) = mesAno
                 
@@ -84,7 +88,8 @@ class DashboardViewModel(
                         ultimasPendencias = pendentes.filter { it.transacao.statusAtribuicao == "PENDENTE" }.take(5),
                         diaFechamento = fechamento,
                         diaVencimento = config?.diaVencimento ?: 5,
-                        isPrivacyModeEnabled = config?.isPrivacyModeEnabled ?: false
+                        isPrivacyModeEnabled = config?.isPrivacyModeEnabled ?: false,
+                        lastSyncTime = lastSync
                     )
                 }.collect { newState ->
                     _uiState.value = newState
@@ -162,7 +167,14 @@ class DashboardViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(showSyncLoading = true, syncStatus = null) }
             
-            val accountId = com.trilhacusto.BuildConfig.PLUGGY_ACCOUNT_ID
+            val accountId = userPreferencesRepository.pluggyAccountId.firstOrNull()
+            
+            if (accountId.isNullOrEmpty()) {
+                _uiState.update { it.copy(showSyncLoading = false, syncStatus = SyncStatus.ERROR, error = "Account ID não configurado.") }
+                delay(3000)
+                _uiState.update { it.copy(syncStatus = null) }
+                return@launch
+            }
             
             val result = pluggyNetworkRepository.fetchTransactions(accountId)
             
@@ -191,6 +203,7 @@ class DashboardViewModel(
 
                 processarTransacaoPluggyUseCase(dtos)
                 
+                userPreferencesRepository.saveLastSyncTime(System.currentTimeMillis())
                 _uiState.update { it.copy(showSyncLoading = false, syncStatus = SyncStatus.SUCCESS) }
             } else {
                 val error = result.exceptionOrNull()

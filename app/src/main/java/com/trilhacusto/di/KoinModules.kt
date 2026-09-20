@@ -36,20 +36,10 @@ val databaseModule = module {
         .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                db.execSQL("INSERT INTO pessoas (id, nome, corHex) VALUES (1, 'Gabriel', '#2196F3')")
-                db.execSQL("INSERT INTO pessoas (id, nome, corHex) VALUES (2, 'Pai', '#9C27B0')")
-                db.execSQL("INSERT INTO pessoas (id, nome, corHex) VALUES (3, 'Mãe', '#FF9800')")
             }
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
 
-                db.execSQL("INSERT OR IGNORE INTO pessoas (id, nome, corHex) VALUES (1, 'Gabriel', '#2196F3')")
-                db.execSQL("INSERT OR IGNORE INTO pessoas (id, nome, corHex) VALUES (2, 'Pai', '#9C27B0')")
-                db.execSQL("INSERT OR IGNORE INTO pessoas (id, nome, corHex) VALUES (3, 'Mãe', '#FF9800')")
-                
-                db.execSQL("UPDATE pessoas SET corHex = '#2196F3' WHERE nome = 'Gabriel'")
-                db.execSQL("UPDATE pessoas SET corHex = '#9C27B0' WHERE nome = 'Pai'")
-                db.execSQL("UPDATE pessoas SET corHex = '#FF9800' WHERE nome = 'Mãe'")
                 db.execSQL("INSERT OR IGNORE INTO configuracoes (id, diaFechamento, diaVencimento, isPrivacyModeEnabled) VALUES (1, 25, 5, 0)")
 
 
@@ -88,7 +78,8 @@ val networkModule = module {
 
 val repositoryModule = module {
     single<TransacaoRepository> { TransacaoRepositoryImpl(get(), get(), get(), get()) }
-    single { PluggyNetworkRepository(get()) }
+    single { PluggyNetworkRepository(get(), get()) } // We will update PluggyNetworkRepository next
+    single { com.trilhacusto.data.repository.UserPreferencesRepository(androidContext()) }
 }
 
 val domainModule = module {
@@ -97,7 +88,7 @@ val domainModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { com.trilhacusto.ui.dashboard.DashboardViewModel(get(), get(), get(), get(), get()) }
+    viewModel { com.trilhacusto.ui.dashboard.DashboardViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { com.trilhacusto.ui.pendencias.PendenciasViewModel(get(), get()) }
     viewModel { com.trilhacusto.ui.rateio.AtribuicaoViewModel(get(), get(), get(), get()) }
     viewModel { com.trilhacusto.ui.transacao.TransacaoFormViewModel(get(), get()) }
@@ -105,6 +96,10 @@ val viewModelModule = module {
     viewModel { com.trilhacusto.ui.ajustes.categorias.CategoriaViewModel(get()) }
     viewModel { com.trilhacusto.ui.ajustes.pessoas.PessoaViewModel(get(), get()) }
     viewModel { com.trilhacusto.ui.export.ExportViewModel(get(), get(), get()) }
+    viewModel { com.trilhacusto.ui.auth.AuthViewModel(get(), get()) }
+    viewModel { com.trilhacusto.ui.auth.RegisterViewModel(get()) }
+    viewModel { com.trilhacusto.ui.onboarding.OnboardingViewModel(get()) }
+    viewModel { com.trilhacusto.ui.account.AccountViewModel(get()) }
 }
 
 val appModules = listOf(databaseModule, networkModule, repositoryModule, domainModule, viewModelModule)

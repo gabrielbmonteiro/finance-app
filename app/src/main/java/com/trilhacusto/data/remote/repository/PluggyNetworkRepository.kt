@@ -1,22 +1,26 @@
 package com.trilhacusto.data.remote.repository
 
-import com.trilhacusto.BuildConfig
 import com.trilhacusto.data.remote.api.PluggyApiService
 import com.trilhacusto.data.remote.dto.PluggyAuthRequest
 import com.trilhacusto.data.remote.dto.PluggyTransactionDto
+import com.trilhacusto.data.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 
 class PluggyNetworkRepository(
-    private val apiService: PluggyApiService
+    private val apiService: PluggyApiService,
+    private val userPrefs: UserPreferencesRepository
 ) {
     suspend fun fetchTransactions(accountId: String): Result<List<PluggyTransactionDto>> {
         return withContext(Dispatchers.IO) {
             try {
-
-                val authReq = PluggyAuthRequest(BuildConfig.PLUGGY_CLIENT_ID, BuildConfig.PLUGGY_CLIENT_SECRET)
+                val clientId = userPrefs.pluggyClientId.firstOrNull() ?: ""
+                val clientSecret = userPrefs.pluggyClientSecret.firstOrNull() ?: ""
+                
+                val authReq = PluggyAuthRequest(clientId, clientSecret)
                 val authRes = apiService.auth(authReq)
                 
                 if (!authRes.isSuccessful || authRes.body() == null) {

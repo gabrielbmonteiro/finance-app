@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -70,6 +71,7 @@ fun PendenciasScreen(
     onDividirClicked: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToExtrato: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     onNavigateToNovaDespesa: () -> Unit,
     onNavigateToEditar: (String) -> Unit,
     onExcluirClicked: (String) -> Unit,
@@ -119,6 +121,12 @@ fun PendenciasScreen(
                     label = { Text("Pendências") },
                     selected = true,
                     onClick = { }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Conta") },
+                    label = { Text("Conta") },
+                    selected = false,
+                    onClick = { onNavigateToAccount() }
                 )
             }
         },
@@ -196,7 +204,7 @@ fun PendenciasScreen(
             }
         }
     }
-    
+
     com.trilhacusto.ui.components.GlassErrorSnackbar(
         errorMessage = uiState.error,
         onDismiss = onLimparErro,
@@ -365,10 +373,10 @@ fun PendenciasScreenPreview() {
                 transacoesPendentes = listOf(
                     TransacaoCompleta(
                         TransacaoEntity(
-                            id = "1", 
-                            valorTotal = 200.0, 
-                            descricaoOriginal = "Supermercado Extra", 
-                            dataHora = 1700000000000L, 
+                            id = "1",
+                            valorTotal = 200.0,
+                            descricaoOriginal = "Supermercado Extra",
+                            dataHora = 1700000000000L,
                             statusAtribuicao = "PENDENTE"
                         ),
                         null,
@@ -376,10 +384,10 @@ fun PendenciasScreenPreview() {
                     ),
                     TransacaoCompleta(
                         TransacaoEntity(
-                            id = "2", 
-                            valorTotal = 45.90, 
-                            descricaoOriginal = "Uber", 
-                            dataHora = 1700000000000L, 
+                            id = "2",
+                            valorTotal = 45.90,
+                            descricaoOriginal = "Uber",
+                            dataHora = 1700000000000L,
                             statusAtribuicao = "PENDENTE"
                         ),
                         null,
@@ -392,6 +400,7 @@ fun PendenciasScreenPreview() {
             onDividirClicked = {},
             onNavigateToHome = {},
             onNavigateToExtrato = {},
+            onNavigateToAccount = {},
             onNavigateToNovaDespesa = {},
             onNavigateToEditar = {},
             onExcluirClicked = {},
@@ -415,6 +424,7 @@ fun PendenciasScreenEmptyPreview() {
             onDividirClicked = {},
             onNavigateToHome = {},
             onNavigateToExtrato = {},
+            onNavigateToAccount = {},
             onNavigateToNovaDespesa = {},
             onNavigateToEditar = {},
             onExcluirClicked = {},

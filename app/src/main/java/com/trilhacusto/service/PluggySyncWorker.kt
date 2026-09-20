@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+import com.trilhacusto.data.repository.UserPreferencesRepository
+
 class PluggySyncWorker(
     private val context: Context,
     workerParams: WorkerParameters
@@ -32,12 +34,17 @@ class PluggySyncWorker(
     private val processarTransacaoPluggyUseCase: ProcessarTransacaoPluggyUseCase by inject()
     private val configuracoesDao: ConfiguracoesDao by inject()
     private val transacaoDao: TransacaoDao by inject()
+    private val userPreferencesRepository: UserPreferencesRepository by inject()
 
     override suspend fun doWork(): Result {
         Log.d("PluggySyncWorker", "Iniciando sincronização em background...")
         return try {
-            val accountId = com.trilhacusto.BuildConfig.PLUGGY_ACCOUNT_ID
+            val accountId = userPreferencesRepository.pluggyAccountId.firstOrNull()
             
+            if (accountId.isNullOrEmpty()) {
+                Log.d("PluggySyncWorker", "Sincronização abortada: Chaves da Pluggy não configuradas.")
+                return Result.failure()
+            }
             // 1. Contar pendências atuais
             val pendentesAntes = transacaoDao.getTransacoesPendentesList().count { it.transacao.statusAtribuicao == "PENDENTE" }
             
