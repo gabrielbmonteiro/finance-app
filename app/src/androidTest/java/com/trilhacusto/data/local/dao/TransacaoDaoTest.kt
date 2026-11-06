@@ -50,12 +50,12 @@ class TransacaoDaoTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        
+
         // Criando banco de dados na memória
         db = Room.inMemoryDatabaseBuilder(
             context, TestAppDatabase::class.java
         ).allowMainThreadQueries().build()
-        
+
         transacaoDao = db.transacaoDao()
         pessoaDao = db.pessoaDao()
         categoriaDao = db.categoriaDao()
@@ -72,11 +72,11 @@ class TransacaoDaoTest {
         val pessoaId = pessoaDao.insert(
             PessoaEntity(nome = "João", corHex = "#FF0000")
         )
-        
+
         val categoriaId = categoriaDao.insert(
             CategoriaEntity(nome = "Alimentação", icone = "🍔", corHex = "#00FF00")
         )
-        
+
         // 2. Inserir Transacao vinculada à Categoria
         val transacaoId = "txn_999"
         val transacao = TransacaoEntity(
@@ -88,7 +88,7 @@ class TransacaoDaoTest {
             statusAtribuicao = "PENDENTE"
         )
         transacaoDao.insertTransacao(transacao)
-        
+
         // 3. Inserir Atribuicao vinculada à Transação e à Pessoa
         val atribuicao = AtribuicaoTransacaoEntity(
             transacaoId = transacaoId,
@@ -96,25 +96,25 @@ class TransacaoDaoTest {
             valorAtribuido = 200.0
         )
         transacaoDao.insertAtribuicoes(listOf(atribuicao))
-        
+
         // 4. Buscar Transação com Relacionamentos Mapeados
         val transacoesPendentes = transacaoDao.getTransacoesPendentes().first()
-        
+
         // 5. Asserts
         assertTrue(transacoesPendentes.isNotEmpty())
-        
+
         val transacaoCompleta = transacoesPendentes.first { it.transacao.id == transacaoId }
-        
+
         // Validando transação
         assertEquals("Supermercado", transacaoCompleta.transacao.descricaoOriginal)
-        
+
         // Validando Relation de Categoria
         assertNotNull(transacaoCompleta.categoria)
         assertEquals("Alimentação", transacaoCompleta.categoria?.nome)
-        
+
         // Validando Relation de Atribuições com Pessoa
         assertEquals(1, transacaoCompleta.atribuicoes.size)
-        
+
         val atribuicaoComPessoa = transacaoCompleta.atribuicoes.first()
         assertEquals(200.0, atribuicaoComPessoa.atribuicao.valorAtribuido, 0.0)
         assertEquals("João", atribuicaoComPessoa.pessoa.nome)

@@ -2,25 +2,49 @@ package com.trilhacusto.ui.account
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -28,13 +52,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.ContentCopy
-import com.trilhacusto.ui.components.GlassCard
-import com.trilhacusto.ui.components.GlassTextField
 import com.trilhacusto.ui.components.GlassButton
+import com.trilhacusto.ui.components.GlassCard
 import com.trilhacusto.ui.components.GlassConfirmDialog
+import com.trilhacusto.ui.components.GlassTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,7 +167,12 @@ fun AccountScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Alterar Senha", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Alterar Senha",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
 
                         GlassTextField(
@@ -154,6 +180,7 @@ fun AccountScreen(
                             onValueChange = { viewModel.updateNewPassword(it) },
                             label = { Text("Nova Senha") },
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                         )
@@ -163,6 +190,7 @@ fun AccountScreen(
                             onValueChange = { viewModel.updateConfirmNewPassword(it) },
                             label = { Text("Confirmar Nova Senha") },
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                         )
@@ -189,9 +217,18 @@ fun AccountScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Chaves da Pluggy", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Chaves da Pluggy",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                             TextButton(onClick = onNavigateToOnboarding) {
-                                Text("Ver Tutorial", color = com.trilhacusto.ui.theme.PrimaryAccent, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Ver Tutorial",
+                                    color = com.trilhacusto.ui.theme.PrimaryAccent,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -201,6 +238,7 @@ fun AccountScreen(
                             onValueChange = { editClientId = it },
                             label = { Text("Client ID") },
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             visualTransformation = if (showClientId) VisualTransformation.None else PasswordVisualTransformation(),
                             trailingIcon = {
                                 IconButton(onClick = { showClientId = !showClientId }) {
@@ -218,6 +256,7 @@ fun AccountScreen(
                             onValueChange = { editClientSecret = it },
                             label = { Text("Client Secret") },
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             visualTransformation = if (showClientSecret) VisualTransformation.None else PasswordVisualTransformation(),
                             trailingIcon = {
                                 IconButton(onClick = { showClientSecret = !showClientSecret }) {
@@ -235,6 +274,7 @@ fun AccountScreen(
                             onValueChange = { editAccountId = it },
                             label = { Text("Item ID") },
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             visualTransformation = if (showAccountId) VisualTransformation.None else PasswordVisualTransformation(),
                             trailingIcon = {
                                 IconButton(onClick = { showAccountId = !showAccountId }) {
@@ -250,8 +290,16 @@ fun AccountScreen(
                         GlassButton(
                             text = "Salvar Chaves Pluggy",
                             onClick = {
-                                viewModel.updatePluggyCredentials(editClientId, editClientSecret, editAccountId)
-                                Toast.makeText(context, "Chaves da Pluggy atualizadas", Toast.LENGTH_SHORT).show()
+                                viewModel.updatePluggyCredentials(
+                                    editClientId,
+                                    editClientSecret,
+                                    editAccountId
+                                )
+                                Toast.makeText(
+                                    context,
+                                    "Chaves da Pluggy atualizadas",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -268,7 +316,13 @@ fun AccountScreen(
                     onConfirm = {
                         showUpdatePasswordDialog = false
                         viewModel.updatePassword(
-                            onSuccess = { Toast.makeText(context, "Senha atualizada com sucesso", Toast.LENGTH_SHORT).show() },
+                            onSuccess = {
+                                Toast.makeText(
+                                    context,
+                                    "Senha atualizada com sucesso",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
                             onError = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
                         )
                     },

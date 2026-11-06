@@ -1,33 +1,54 @@
 package com.trilhacusto.ui.auth
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trilhacusto.ui.theme.BackgroundGradientEnd
 import com.trilhacusto.ui.theme.BackgroundGradientStart
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.compose.material.icons.filled.Fingerprint
 
 fun Context.findActivity(): FragmentActivity? = when (this) {
     is FragmentActivity -> this
@@ -73,12 +94,15 @@ fun AuthScreen(
                 object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         super.onAuthenticationError(errorCode, errString)
-                        Toast.makeText(context, "Erro Biometria: $errString", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Erro Biometria: $errString", Toast.LENGTH_SHORT)
+                            .show()
                     }
+
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
                         authSuccess = true
                     }
+
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
                         Toast.makeText(context, "Falha na biometria.", Toast.LENGTH_SHORT).show()
@@ -183,7 +207,13 @@ fun AuthScreen(
                     onClick = {
                         viewModel.loginWithPassword(
                             onSuccess = { authSuccess = true },
-                            onError = { Toast.makeText(context, "Senha incorreta.", Toast.LENGTH_SHORT).show() }
+                            onError = {
+                                Toast.makeText(
+                                    context,
+                                    "Senha incorreta.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         )
                     },
                     modifier = Modifier
@@ -191,7 +221,12 @@ fun AuthScreen(
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A3FF))
                 ) {
-                    Text("Entrar", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(
+                        "Entrar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -225,7 +260,9 @@ fun AuthScreen(
         }
     } else {
         Box(
-            modifier = Modifier.fillMaxSize().background(Color(0xFF13131A)),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF13131A)),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Color.White)

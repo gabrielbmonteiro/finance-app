@@ -40,30 +40,43 @@ interface TransacaoDao {
     @Query("SELECT * FROM transacoes WHERE statusAtribuicao IN ('PENDENTE', 'IGNORADO') ORDER BY dataHora DESC")
     suspend fun getTransacoesPendentesList(): List<TransacaoCompleta>
 
-    @Query("""
+    @Query(
+        """
         SELECT a.pessoaId, COALESCE(SUM(a.valorAtribuido), 0.0) as totalGasto
         FROM atribuicoes_transacao a 
         INNER JOIN transacoes t ON a.transacaoId = t.id 
         WHERE t.dataHora BETWEEN :inicioTimestamp AND :fimTimestamp
         GROUP BY a.pessoaId
-    """)
-    fun getGastosAgrupadosPorPessoa(inicioTimestamp: Long, fimTimestamp: Long): Flow<List<GastoAgrupado>>
-    
-    @Query("""
+    """
+    )
+    fun getGastosAgrupadosPorPessoa(
+        inicioTimestamp: Long,
+        fimTimestamp: Long
+    ): Flow<List<GastoAgrupado>>
+
+    @Query(
+        """
         SELECT COALESCE(SUM(a.valorAtribuido), 0.0) 
         FROM atribuicoes_transacao a 
         INNER JOIN transacoes t ON a.transacaoId = t.id 
         WHERE a.pessoaId = :pessoaId 
         AND t.dataHora BETWEEN :inicioTimestamp AND :fimTimestamp
-    """)
-    fun getGastoTotalPorPessoa(pessoaId: Long, inicioTimestamp: Long, fimTimestamp: Long): Flow<Double>
+    """
+    )
+    fun getGastoTotalPorPessoa(
+        pessoaId: Long,
+        inicioTimestamp: Long,
+        fimTimestamp: Long
+    ): Flow<Double>
 
-    @Query("""
+    @Query(
+        """
         SELECT COALESCE(SUM(valorTotal), 0.0)
         FROM transacoes
         WHERE dataHora BETWEEN :inicioTimestamp AND :fimTimestamp
         AND statusAtribuicao != 'IGNORADO'
-    """)
+    """
+    )
     fun getGastoTotalMes(inicioTimestamp: Long, fimTimestamp: Long): Flow<Double>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -88,37 +101,50 @@ interface TransacaoDao {
     suspend fun deleteTransacaoById(transacaoId: String)
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM transacoes 
         WHERE dataHora BETWEEN :inicioTimestamp AND :fimTimestamp 
         AND statusAtribuicao != 'IGNORADO'
         AND (descricaoOriginal LIKE '%' || :queryBusca || '%' 
              OR descricaoCustomizada LIKE '%' || :queryBusca || '%' 
              OR nota LIKE '%' || :queryBusca || '%')
-    """)
-    fun getTransacoesFiltradas(inicioTimestamp: Long, fimTimestamp: Long, queryBusca: String): Flow<List<TransacaoCompleta>>
+    """
+    )
+    fun getTransacoesFiltradas(
+        inicioTimestamp: Long,
+        fimTimestamp: Long,
+        queryBusca: String
+    ): Flow<List<TransacaoCompleta>>
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT DISTINCT t.* FROM transacoes t
         INNER JOIN atribuicoes_transacao a ON t.id = a.transacaoId
         WHERE t.dataHora BETWEEN :inicioTimestamp AND :fimTimestamp 
         AND t.statusAtribuicao != 'IGNORADO'
         AND a.pessoaId IN (:pessoasIds)
         ORDER BY t.dataHora DESC
-    """)
+    """
+    )
     suspend fun getTransacoesCompletasFiltradasPorDataEPessoas(
-        inicioTimestamp: Long, 
-        fimTimestamp: Long, 
+        inicioTimestamp: Long,
+        fimTimestamp: Long,
         pessoasIds: List<Long>
     ): List<TransacaoCompleta>
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM transacoes 
         WHERE dataHora BETWEEN :inicioTimestamp AND :fimTimestamp 
         AND statusAtribuicao != 'IGNORADO'
         ORDER BY dataHora DESC
-    """)
-    suspend fun getTransacoesCompletasDoMes(inicioTimestamp: Long, fimTimestamp: Long): List<TransacaoCompleta>
+    """
+    )
+    suspend fun getTransacoesCompletasDoMes(
+        inicioTimestamp: Long,
+        fimTimestamp: Long
+    ): List<TransacaoCompleta>
 }

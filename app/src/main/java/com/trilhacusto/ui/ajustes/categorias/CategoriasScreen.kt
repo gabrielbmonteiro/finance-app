@@ -40,13 +40,13 @@ fun CategoriasScreen(
     onNavigateBack: () -> Unit
 ) {
     val categorias by viewModel.categorias.collectAsStateWithLifecycle()
-    
+
     var showDialog by remember { mutableStateOf(false) }
     var categoriaEditando by remember { mutableStateOf<CategoriaEntity?>(null) }
-    
+
     var showDeleteDialog by remember { mutableStateOf(false) }
     var categoriaToDelete by remember { mutableStateOf<CategoriaEntity?>(null) }
-    
+
     val errorState by viewModel.error.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -61,9 +61,9 @@ fun CategoriasScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { 
+            FloatingActionButton(onClick = {
                 categoriaEditando = null
-                showDialog = true 
+                showDialog = true
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Nova Categoria")
             }
@@ -71,7 +71,9 @@ fun CategoriasScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(paddingValues)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
                 items(categorias, key = { it.id }) { categoria ->
                     ListItem(
@@ -88,14 +90,18 @@ fun CategoriasScreen(
                                     categoriaToDelete = categoria
                                     showDeleteDialog = true
                                 }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Excluir",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             }
                         }
                     )
-                HorizontalDivider()
+                    HorizontalDivider()
+                }
             }
-        }
 
             if (showDialog) {
                 CategoriaDialog(
@@ -120,11 +126,13 @@ fun CategoriasScreen(
                     isDestructive = true
                 )
             }
-            
+
             com.trilhacusto.ui.components.GlassErrorSnackbar(
                 errorMessage = errorState,
                 onDismiss = { viewModel.clearError() },
-                modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter).padding(bottom = 80.dp)
+                modifier = Modifier
+                    .align(androidx.compose.ui.Alignment.BottomCenter)
+                    .padding(bottom = 80.dp)
             )
         }
     }
@@ -162,7 +170,9 @@ fun CategoriaDialog(
                     value = nome,
                     onValueChange = { nome = it },
                     label = { Text("Nome da Categoria") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
                 )
             }
         }

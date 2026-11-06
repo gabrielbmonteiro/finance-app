@@ -16,4 +16,11 @@ local.properties
 app/build/
 
  # Android Studio IDE settings
-.idea/  
+.idea/
+
+# APKs e Keystores
+*.apk
+*.aab
+*.jks
+*.keystore
+app/release/

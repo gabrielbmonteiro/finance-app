@@ -44,8 +44,9 @@ fun GlassCategorySelector(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
-    val nomeCategoriaSelecionada = categorias.find { it.id == categoriaSelecionadaId }?.nome ?: "Sem Categoria"
+
+    val nomeCategoriaSelecionada =
+        categorias.find { it.id == categoriaSelecionadaId }?.nome ?: "Sem Categoria"
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -58,10 +59,12 @@ fun GlassCategorySelector(
             readOnly = true,
             label = { Text("Categoria") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth()
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
-        
-        // Custom styling for the dropdown menu
+
+
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme.copy(
                 surface = com.trilhacusto.ui.theme.BackgroundGradientStart,
@@ -82,21 +85,32 @@ fun GlassCategorySelector(
                 )
                 categorias.forEach { cat ->
                     DropdownMenuItem(
-                        text = { 
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 Text(cat.nome, modifier = Modifier.weight(1f))
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     onEditarCategoria(cat)
                                     expanded = false
                                 }, modifier = Modifier.size(24.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryAccent)
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = "Editar",
+                                        tint = PrimaryAccent
+                                    )
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     onRemoverCategoria(cat)
-                                    // Don't close so they can see it was removed
+
                                 }, modifier = Modifier.size(24.dp)) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Deletar", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Deletar",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             }
                         },
@@ -108,8 +122,20 @@ fun GlassCategorySelector(
                 }
                 Divider(color = com.trilhacusto.ui.theme.GlassBorder)
                 DropdownMenuItem(
-                    text = { Text("Adicionar Nova Categoria Rápida...", color = PrimaryAccent, fontWeight = FontWeight.Bold) },
-                    leadingIcon = { Icon(Icons.Default.Add, contentDescription = null, tint = PrimaryAccent) },
+                    text = {
+                        Text(
+                            "Adicionar Nova Categoria Rápida...",
+                            color = PrimaryAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = null,
+                            tint = PrimaryAccent
+                        )
+                    },
                     onClick = {
                         expanded = false
                         onAdicionarCategoria()

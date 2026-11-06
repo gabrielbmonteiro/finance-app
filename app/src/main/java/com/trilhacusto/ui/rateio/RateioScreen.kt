@@ -76,8 +76,8 @@ fun RateioScreen(
     onRemoverResponsavelDropdown: (Long) -> Unit
 ) {
     val valorTotalNumerico = uiState.valorTotalInput.replace(",", ".").toDoubleOrNull() ?: 0.0
-    val soma = uiState.pessoasNaDivida.sumOf { pessoa -> 
-        uiState.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull() ?: 0.0 
+    val soma = uiState.pessoasNaDivida.sumOf { pessoa ->
+        uiState.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull() ?: 0.0
     }
     val diferenca = abs(valorTotalNumerico - soma)
     val isFechado = abs(valorTotalNumerico - soma) < 0.01 || soma == 0.0
@@ -108,7 +108,10 @@ fun RateioScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToPessoas) {
-                        Icon(Icons.Default.Person, contentDescription = "Gerenciar Pessoas Envolvidas")
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Gerenciar Pessoas Envolvidas"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -136,7 +139,10 @@ fun RateioScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 var showDatePicker by remember { mutableStateOf(false) }
                 var showTimePicker by remember { mutableStateOf(false) }
                 val datePattern = "dd MMM yy"
@@ -144,20 +150,42 @@ fun RateioScreen(
                 val sdfTime = java.text.SimpleDateFormat("HH:mm", java.util.Locale("pt", "BR"))
 
                 com.trilhacusto.ui.components.GlassCard(
-                    modifier = Modifier.weight(1f).clickable { showDatePicker = true }
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { showDatePicker = true }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Data", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                        Text(sdfDate.format(java.util.Date(uiState.dataHora)).replace(".", ""), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Text(
+                            "Data",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                        Text(
+                            sdfDate.format(java.util.Date(uiState.dataHora)).replace(".", ""),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
                     }
                 }
 
                 com.trilhacusto.ui.components.GlassCard(
-                    modifier = Modifier.weight(1f).clickable { showTimePicker = true }
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { showTimePicker = true }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Hora", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                        Text(sdfTime.format(java.util.Date(uiState.dataHora)), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                        Text(
+                            "Hora",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                        Text(
+                            sdfTime.format(java.util.Date(uiState.dataHora)),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
 
@@ -184,7 +212,8 @@ fun RateioScreen(
                 }
 
                 if (showTimePicker) {
-                    val initialCal = java.util.Calendar.getInstance().apply { timeInMillis = uiState.dataHora }
+                    val initialCal =
+                        java.util.Calendar.getInstance().apply { timeInMillis = uiState.dataHora }
                     val timePickerState = rememberTimePickerState(
                         initialHour = initialCal.get(java.util.Calendar.HOUR_OF_DAY),
                         initialMinute = initialCal.get(java.util.Calendar.MINUTE),
@@ -194,7 +223,8 @@ fun RateioScreen(
                         onDismissRequest = { showTimePicker = false },
                         onConfirm = {
                             showTimePicker = false
-                            val newCal = java.util.Calendar.getInstance().apply { timeInMillis = uiState.dataHora }
+                            val newCal = java.util.Calendar.getInstance()
+                                .apply { timeInMillis = uiState.dataHora }
                             newCal.set(java.util.Calendar.HOUR_OF_DAY, timePickerState.hour)
                             newCal.set(java.util.Calendar.MINUTE, timePickerState.minute)
                             onDataHoraChanged(newCal.timeInMillis)
@@ -204,7 +234,10 @@ fun RateioScreen(
                         confirmButtonText = "OK",
                         dismissButtonText = "Cancelar",
                         content = {
-                            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 TimePicker(state = timePickerState)
                             }
                         }
@@ -229,7 +262,7 @@ fun RateioScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             com.trilhacusto.ui.components.GlassCategorySelector(
                 categorias = uiState.categorias,
                 categoriaSelecionadaId = uiState.categoriaIdSelecionada,
@@ -241,9 +274,14 @@ fun RateioScreen(
             )
 
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Divisão por Pessoa", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(
+                    "Divisão por Pessoa",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
                 if (uiState.pessoasNaDivida.size > 1 && valorTotalNumerico > 0) {
                     OutlinedButton(onClick = onDividirIgualmente) {
                         Text("Dividir Igualmente")
@@ -253,13 +291,16 @@ fun RateioScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.pessoasNaDivida.isEmpty()) {
-                Text("Nenhuma pessoa adicionada a esta dívida.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Nenhuma pessoa adicionada a esta dívida.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             } else {
                 uiState.pessoasNaDivida.forEach { pessoa ->
                     val inputValor = uiState.valoresInput[pessoa.id] ?: ""
                     val isSuggested = uiState.pessoaIdSugestao == pessoa.id
                     val suggestionText = if (isSuggested) uiState.valorSugestao else null
-                    
+
                     RateioInputField(
                         label = pessoa.nome,
                         value = inputValor,
@@ -274,23 +315,33 @@ fun RateioScreen(
             }
 
             var expandPessoas by remember { mutableStateOf(false) }
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(modifier = Modifier.weight(1f)) {
                     val selectedName = "Selecionar para Adicionar..."
-                    OutlinedButton(onClick = { expandPessoas = true }, modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { expandPessoas = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(selectedName)
                     }
-                    DropdownMenu(expanded = expandPessoas, onDismissRequest = { expandPessoas = false }) {
-                        uiState.todasAsPessoas.filter { it.id !in uiState.pessoasNaDivida.map { p -> p.id } }.forEach { pessoa ->
-                            DropdownMenuItem(
-                                text = { Text(pessoa.nome) },
-                                onClick = {
-                                    onAdicionarResponsavelDropdown(pessoa.id)
-                                    expandPessoas = false
-                                }
-                            )
-                        }
+                    DropdownMenu(
+                        expanded = expandPessoas,
+                        onDismissRequest = { expandPessoas = false }) {
+                        uiState.todasAsPessoas.filter { it.id !in uiState.pessoasNaDivida.map { p -> p.id } }
+                            .forEach { pessoa ->
+                                DropdownMenuItem(
+                                    text = { Text(pessoa.nome) },
+                                    onClick = {
+                                        onAdicionarResponsavelDropdown(pessoa.id)
+                                        expandPessoas = false
+                                    }
+                                )
+                            }
                     }
                 }
             }
@@ -331,7 +382,7 @@ fun RateioScreen(
             }
         )
     }
-    
+
     if (categoriaEditando != null) {
         var nomeCatEdit by remember { mutableStateOf(categoriaEditando!!.nome) }
         GlassConfirmDialog(

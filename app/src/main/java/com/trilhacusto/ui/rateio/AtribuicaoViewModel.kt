@@ -26,7 +26,7 @@ class AtribuicaoViewModel(
 
     private val _uiState = MutableStateFlow(RateioUiState(isLoading = true))
     val uiState: StateFlow<RateioUiState> = _uiState.asStateFlow()
-    
+
     private val _eventos = Channel<AtribuicaoEvent>()
     val eventos = _eventos.receiveAsFlow()
 
@@ -36,7 +36,7 @@ class AtribuicaoViewModel(
                 _uiState.update { it.copy(categorias = categorias) }
             }
         }
-        
+
         viewModelScope.launch {
             pessoaDao.getAll().collect { pessoas ->
                 _uiState.update { it.copy(todasAsPessoas = pessoas) }
@@ -49,20 +49,28 @@ class AtribuicaoViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val transacaoCompleta = transacaoDao.getTransacaoCompletaById(transacaoId)
-                
+
                 if (transacaoCompleta != null) {
                     val transacao = transacaoCompleta.transacao
                     val titulo = transacao.descricaoCustomizada ?: transacao.descricaoOriginal
                     val valorStr = String.format(java.util.Locale.US, "%.2f", transacao.valorTotal)
-                    
+
                     val mapValores = mutableMapOf<Long, String>()
                     val pessoasNaDivida = mutableListOf<PessoaEntity>()
-                    
+
                     if (transacaoCompleta.atribuicoes.isNotEmpty()) {
                         transacaoCompleta.atribuicoes.forEach { atrib ->
-                            mapValores[atrib.pessoa.id] = String.format(java.util.Locale.US, "%.2f", atrib.atribuicao.valorAtribuido)
+                            mapValores[atrib.pessoa.id] = String.format(
+                                java.util.Locale.US,
+                                "%.2f",
+                                atrib.atribuicao.valorAtribuido
+                            )
                             pessoasNaDivida.add(atrib.pessoa)
                         }
+                    } else {
+                        // Pendência ainda não rateada: adiciona automaticamente todas as pessoas favoritadas
+                        val favoritos = pessoaDao.getFavoritos()
+                        pessoasNaDivida.addAll(favoritos)
                     }
 
                     _uiState.update { currentState ->
@@ -78,7 +86,12 @@ class AtribuicaoViewModel(
                         )
                     }
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = "Transação não encontrada") }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Transação não encontrada"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
@@ -91,18 +104,19 @@ class AtribuicaoViewModel(
     }
 
     fun atualizarValorTotal(valor: String) {
-        val filtrado = valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+        val filtrado =
+            valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
         _uiState.update { it.copy(valorTotalInput = filtrado) }
     }
-    
+
     fun atualizarDataHora(dataHora: Long) {
         _uiState.update { it.copy(dataHora = dataHora) }
     }
-    
+
     fun atualizarCategoria(categoriaId: Long?) {
         _uiState.update { it.copy(categoriaIdSelecionada = categoriaId) }
     }
-    
+
     fun adicionarCategoria(nome: String, icone: String, corHex: String) {
         viewModelScope.launch {
             val novaCategoria = CategoriaEntity(nome = nome, icone = icone, corHex = corHex)
@@ -110,7 +124,7 @@ class AtribuicaoViewModel(
             atualizarCategoria(idCriado)
         }
     }
-    
+
     fun deletarCategoria(categoria: CategoriaEntity) {
         viewModelScope.launch {
             categoriaDao.delete(categoria)
@@ -119,7 +133,7 @@ class AtribuicaoViewModel(
             }
         }
     }
-    
+
     fun editarCategoria(categoria: CategoriaEntity, novoNome: String) {
         viewModelScope.launch {
             categoriaDao.update(categoria.copy(nome = novoNome))
@@ -145,7 +159,8 @@ class AtribuicaoViewModel(
     }
 
     fun atualizarDropdownValor(valor: String) {
-        val filtrado = valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+        val filtrado =
+            valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
         _uiState.update { it.copy(dropdownValor = filtrado) }
     }
 
@@ -155,8 +170,10 @@ class AtribuicaoViewModel(
 
         if (!state.pessoasNaDivida.any { it.id == pessoaId }) {
             _uiState.update { currentState ->
-                val pessoasAtuais = currentState.pessoasNaDivida.toMutableList().apply { add(pessoa) }
-                val novosValores = currentState.valoresInput.toMutableMap().apply { put(pessoaId, "") }
+                val pessoasAtuais =
+                    currentState.pessoasNaDivida.toMutableList().apply { add(pessoa) }
+                val novosValores =
+                    currentState.valoresInput.toMutableMap().apply { put(pessoaId, "") }
                 currentState.copy(
                     pessoasNaDivida = pessoasAtuais,
                     valoresInput = novosValores,
@@ -169,7 +186,8 @@ class AtribuicaoViewModel(
 
     fun removerResponsavelDropdown(pessoaId: Long) {
         _uiState.update { currentState ->
-            val pessoasAtuais = currentState.pessoasNaDivida.toMutableList().apply { removeAll { it.id == pessoaId } }
+            val pessoasAtuais = currentState.pessoasNaDivida.toMutableList()
+                .apply { removeAll { it.id == pessoaId } }
             val novosValores = currentState.valoresInput.toMutableMap().apply { remove(pessoaId) }
             currentState.copy(
                 pessoasNaDivida = pessoasAtuais,
@@ -179,20 +197,22 @@ class AtribuicaoViewModel(
     }
 
     fun atualizarParte(pessoaId: Long, valor: String) {
-        val filtrado = valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+        val filtrado =
+            valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
         _uiState.update { currentState ->
             val novosValores = currentState.valoresInput.toMutableMap()
             novosValores[pessoaId] = filtrado
-            
+
             val totalValue = currentState.valorTotalInput.replace(",", ".").toDoubleOrNull() ?: 0.0
-            val sumParts = novosValores.values.sumOf { it.replace(",", ".").toDoubleOrNull() ?: 0.0 }
+            val sumParts =
+                novosValores.values.sumOf { it.replace(",", ".").toDoubleOrNull() ?: 0.0 }
             val remainder = totalValue - sumParts
-            
+
             var suggestedPessoaId: Long? = null
             var suggestedValue: String? = null
-            
+
             if (remainder > 0.009) {
-                val emptyPerson = currentState.pessoasNaDivida.firstOrNull { 
+                val emptyPerson = currentState.pessoasNaDivida.firstOrNull {
                     val v = novosValores[it.id]
                     v.isNullOrBlank() || (v.replace(",", ".").toDoubleOrNull() ?: 0.0) == 0.0
                 }
@@ -201,7 +221,7 @@ class AtribuicaoViewModel(
                     suggestedValue = String.format(java.util.Locale.US, "%.2f", remainder)
                 }
             }
-            
+
             currentState.copy(
                 valoresInput = novosValores,
                 pessoaIdSugestao = suggestedPessoaId,
@@ -209,7 +229,7 @@ class AtribuicaoViewModel(
             )
         }
     }
-    
+
     fun aceitarSugestao() {
         _uiState.update { currentState ->
             val pessoaId = currentState.pessoaIdSugestao
@@ -227,7 +247,7 @@ class AtribuicaoViewModel(
             }
         }
     }
-    
+
     fun dividirIgualmente() {
         _uiState.update { currentState ->
             val totalValue = currentState.valorTotalInput.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -239,15 +259,20 @@ class AtribuicaoViewModel(
                 currentState.pessoasNaDivida.forEach { pessoa ->
                     novosValores[pessoa.id] = splitStr
                 }
-                
-                val sumParts = count * (String.format(java.util.Locale.US, "%.2f", splitValue).toDoubleOrNull() ?: 0.0)
+
+                val sumParts =
+                    count * (String.format(java.util.Locale.US, "%.2f", splitValue).toDoubleOrNull()
+                        ?: 0.0)
                 val diff = totalValue - sumParts
                 if (Math.abs(diff) > 0.001) {
                     val firstId = currentState.pessoasNaDivida.first().id
-                    val adjustedFirst = (String.format(java.util.Locale.US, "%.2f", splitValue).toDoubleOrNull() ?: 0.0) + diff
-                    novosValores[firstId] = String.format(java.util.Locale.US, "%.2f", adjustedFirst)
+                    val adjustedFirst =
+                        (String.format(java.util.Locale.US, "%.2f", splitValue).toDoubleOrNull()
+                            ?: 0.0) + diff
+                    novosValores[firstId] =
+                        String.format(java.util.Locale.US, "%.2f", adjustedFirst)
                 }
-                
+
                 currentState.copy(
                     valoresInput = novosValores,
                     pessoaIdSugestao = null,
@@ -258,7 +283,7 @@ class AtribuicaoViewModel(
             }
         }
     }
-    
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
@@ -266,7 +291,7 @@ class AtribuicaoViewModel(
     fun confirmarRateio() {
         val currentState = _uiState.value
         val mapaAtribuicoes = mutableMapOf<Long, Double>()
-        
+
         currentState.pessoasNaDivida.forEach { pessoa ->
             val input = currentState.valoresInput[pessoa.id] ?: ""
             val valorFormatado = input.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -277,10 +302,12 @@ class AtribuicaoViewModel(
 
         viewModelScope.launch {
             try {
-                val transacaoCompleta = transacaoDao.getTransacaoCompletaById(currentState.transacaoId)
+                val transacaoCompleta =
+                    transacaoDao.getTransacaoCompletaById(currentState.transacaoId)
                 if (transacaoCompleta != null) {
-                    val valorNovo = currentState.valorTotalInput.replace(",", ".").toDoubleOrNull() ?: transacaoCompleta.transacao.valorTotal
-                    
+                    val valorNovo = currentState.valorTotalInput.replace(",", ".").toDoubleOrNull()
+                        ?: transacaoCompleta.transacao.valorTotal
+
                     val transacaoEditada = transacaoCompleta.copy(
                         transacao = transacaoCompleta.transacao.copy(
                             descricaoCustomizada = currentState.tituloInput,
@@ -289,7 +316,7 @@ class AtribuicaoViewModel(
                             dataHora = currentState.dataHora
                         )
                     )
-                    
+
                     atribuirValoresUseCase(transacaoEditada, mapaAtribuicoes)
                     _eventos.send(AtribuicaoEvent.Sucesso)
                 }
@@ -300,17 +327,19 @@ class AtribuicaoViewModel(
             }
         }
     }
+
     fun ignorarTransacao() {
         val currentState = _uiState.value
         viewModelScope.launch {
             try {
-                val transacaoCompleta = transacaoDao.getTransacaoCompletaById(currentState.transacaoId)
+                val transacaoCompleta =
+                    transacaoDao.getTransacaoCompletaById(currentState.transacaoId)
                 if (transacaoCompleta != null) {
                     val transacaoEditada = transacaoCompleta.transacao.copy(
                         statusAtribuicao = "IGNORADO"
                     )
                     atribuirValoresUseCase(
-                        transacaoCompleta.copy(transacao = transacaoEditada), 
+                        transacaoCompleta.copy(transacao = transacaoEditada),
                         emptyMap()
                     )
                     _eventos.send(AtribuicaoEvent.Sucesso)

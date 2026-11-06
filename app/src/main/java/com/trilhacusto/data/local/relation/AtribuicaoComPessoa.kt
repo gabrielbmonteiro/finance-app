@@ -7,7 +7,7 @@ import com.trilhacusto.data.local.entity.PessoaEntity
 
 data class AtribuicaoComPessoa(
     @Embedded val atribuicao: AtribuicaoTransacaoEntity,
-    
+
     @Relation(
         parentColumn = "pessoaId",
         entityColumn = "id"

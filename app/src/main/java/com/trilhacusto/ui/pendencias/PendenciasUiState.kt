@@ -5,9 +5,12 @@ import com.trilhacusto.data.local.relation.TransacaoCompleta
 data class PendenciasUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
+    val mensagemSucesso: String? = null,
     val filtroSelecionado: FiltroPendencia = FiltroPendencia.TODOS,
     val transacoesPendentes: List<TransacaoCompleta> = emptyList(),
+    val transacoesExcluidas: List<TransacaoCompleta> = emptyList(),
     val termoBusca: String = "",
+    val termoBuscaExcluidas: String = "",
     val isPrivacyModeEnabled: Boolean = false
 )
 

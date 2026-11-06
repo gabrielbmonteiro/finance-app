@@ -21,9 +21,17 @@ class OnboardingViewModel(
     private val _accountId = MutableStateFlow("")
     val accountId: StateFlow<String> = _accountId.asStateFlow()
 
-    fun updateClientId(value: String) { _clientId.value = value }
-    fun updateClientSecret(value: String) { _clientSecret.value = value }
-    fun updateAccountId(value: String) { _accountId.value = value }
+    fun updateClientId(value: String) {
+        _clientId.value = value
+    }
+
+    fun updateClientSecret(value: String) {
+        _clientSecret.value = value
+    }
+
+    fun updateAccountId(value: String) {
+        _accountId.value = value
+    }
 
     fun saveCredentials(onComplete: () -> Unit) {
         viewModelScope.launch {

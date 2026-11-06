@@ -17,24 +17,20 @@ class AtribuirValoresUseCase(
         if (transacaoCompleta == null || transacaoCompleta.transacao.id.isBlank()) {
             throw IllegalArgumentException("Transação inválida ou inexistente.")
         }
-        
+
         val transacao = transacaoCompleta.transacao
-        
-
-        // Check removido para permitir valores negativos (reembolsos/descontos)
-
 
         val somaAtribuicoes = novasAtribuicoes.values
             .map { BigDecimal(it.toString()) }
             .fold(BigDecimal.ZERO, BigDecimal::add)
             .setScale(2, RoundingMode.HALF_UP)
-            
+
         val valorTotalBD = BigDecimal(transacao.valorTotal.toString())
             .setScale(2, RoundingMode.HALF_UP)
 
-
-        if (somaAtribuicoes.compareTo(BigDecimal.ZERO) == 0) {
-            val novoStatus = if (transacao.statusAtribuicao == "IGNORADO") "IGNORADO" else "PENDENTE"
+        if (novasAtribuicoes.isEmpty() || novasAtribuicoes.values.all { it == 0.0 }) {
+            val novoStatus =
+                if (transacao.statusAtribuicao == "IGNORADO") "IGNORADO" else "PENDENTE"
             val transacaoAtualizada = transacao.copy(statusAtribuicao = novoStatus)
             repository.atribuirRateio(
                 transacaoId = transacao.id,

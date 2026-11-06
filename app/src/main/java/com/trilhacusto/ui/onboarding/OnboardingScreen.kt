@@ -3,7 +3,18 @@ package com.trilhacusto.ui.onboarding
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -11,8 +22,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,9 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trilhacusto.R
+import com.trilhacusto.ui.components.GlassButton
 import com.trilhacusto.ui.components.GlassCard
 import com.trilhacusto.ui.components.GlassTextField
-import com.trilhacusto.ui.components.GlassButton
 import com.trilhacusto.ui.theme.PrimaryAccent
 import kotlinx.coroutines.launch
 
@@ -125,7 +144,7 @@ fun OnboardingScreen(
     onNavigateToDashboard: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val totalPages = onboardingSteps.size + 1 // +1 for the final form
+    val totalPages = onboardingSteps.size + 1
     val pagerState = rememberPagerState(pageCount = { totalPages })
     val coroutineScope = rememberCoroutineScope()
 
@@ -167,7 +186,7 @@ fun OnboardingScreen(
                 }
             }
 
-            // Bottom Navigation and Indicator
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,7 +194,7 @@ fun OnboardingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Back / Skip button
+
                 if (pagerState.currentPage > 0) {
                     TextButton(onClick = {
                         coroutineScope.launch {
@@ -187,28 +206,36 @@ fun OnboardingScreen(
                 } else {
                     TextButton(onClick = {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(totalPages - 1) // Skip to form
+                            pagerState.animateScrollToPage(totalPages - 1)
                         }
                     }) {
                         Text("Pular", color = Color.Gray)
                     }
                 }
 
-                // Page Indicator (using LazyRow or wrapping to avoid overflow)
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
                     val start = maxOf(0, pagerState.currentPage - 2)
-                    val end = minOf(totalPages - 1, start + 4) // Show at most 5 dots to prevent overflow
-                    
+                    val end = minOf(totalPages - 1, start + 4)
+
                     if (start > 0) {
-                        Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(Color.Gray.copy(alpha = 0.3f)))
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.3f))
+                        )
                     }
-                    
+
                     for (iteration in start..end) {
-                        val color = if (pagerState.currentPage == iteration) PrimaryAccent else Color.Gray.copy(alpha = 0.5f)
+                        val color =
+                            if (pagerState.currentPage == iteration) PrimaryAccent else Color.Gray.copy(
+                                alpha = 0.5f
+                            )
                         val width = if (pagerState.currentPage == iteration) 16.dp else 6.dp
                         Box(
                             modifier = Modifier
@@ -218,13 +245,18 @@ fun OnboardingScreen(
                                 .background(color)
                         )
                     }
-                    
+
                     if (end < totalPages - 1) {
-                        Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(Color.Gray.copy(alpha = 0.3f)))
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.3f))
+                        )
                     }
                 }
 
-                // Next Button
+
                 if (pagerState.currentPage < totalPages - 1) {
                     TextButton(onClick = {
                         coroutineScope.launch {
@@ -234,8 +266,8 @@ fun OnboardingScreen(
                         Text("Próximo", color = PrimaryAccent, fontWeight = FontWeight.Bold)
                     }
                 } else {
-                    // Placeholder for spacing to keep indicator centered
-                    Spacer(modifier = Modifier.width(72.dp)) 
+
+                    Spacer(modifier = Modifier.width(72.dp))
                 }
             }
         }
@@ -269,7 +301,7 @@ fun OnboardingStepView(step: OnboardingStepData) {
             lineHeight = 24.sp,
             textAlign = TextAlign.Center
         )
-        
+
         if (step.actionText != null && step.actionUrl != null) {
             Spacer(modifier = Modifier.height(24.dp))
             GlassButton(
@@ -278,7 +310,7 @@ fun OnboardingStepView(step: OnboardingStepData) {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        
+
         if (step.imageResId != null) {
             Spacer(modifier = Modifier.height(32.dp))
             GlassCard {
@@ -335,6 +367,7 @@ fun CredentialsStep(
             onValueChange = { viewModel.updateClientId(it) },
             label = { Text("Client ID") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
@@ -345,6 +378,7 @@ fun CredentialsStep(
             onValueChange = { viewModel.updateClientSecret(it) },
             label = { Text("Client Secret") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
@@ -355,6 +389,7 @@ fun CredentialsStep(
             onValueChange = { viewModel.updateAccountId(it) },
             label = { Text("Item ID") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
         )
 

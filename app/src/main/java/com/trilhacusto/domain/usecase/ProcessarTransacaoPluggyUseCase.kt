@@ -25,15 +25,19 @@ class ProcessarTransacaoPluggyUseCase(
                 val existente = repository.getTransacaoById(dto.id)
 
                 if (existente != null) {
-                    val atualizada = existente.copy(
-                        valorTotal = dto.amount,
-                        dataHora = dto.date,
-
-                        descricaoOriginal = dto.description,
-                        numeroParcela = dto.numeroParcela,
-                        totalParcelas = dto.totalParcelas
-                    )
-                    repository.atualizarTransacao(atualizada)
+                    // Só atualiza se a transação estiver como pendência aberta ("PENDENTE").
+                    // Se já foi cadastrada como compra numa fatura (RATEADO, TOTALMENTE_ATRIBUIDO)
+                    // ou foi ignorada, não deve haver atualização desse item.
+                    if (existente.statusAtribuicao == "PENDENTE") {
+                        val atualizada = existente.copy(
+                            valorTotal = dto.amount,
+                            dataHora = dto.date,
+                            descricaoOriginal = dto.description,
+                            numeroParcela = dto.numeroParcela,
+                            totalParcelas = dto.totalParcelas
+                        )
+                        repository.atualizarTransacao(atualizada)
+                    }
                 } else {
                     var categoriaIdPadrao: Long? = null
 

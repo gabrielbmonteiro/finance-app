@@ -19,17 +19,18 @@ data class DashboardUiState(
     val faturaTotal: Double = 0.0,
     val gastosPessoas: List<GastoPessoa> = emptyList(),
     val ultimasPendencias: List<TransacaoCompleta> = emptyList(),
-    
+
     val showSyncLoading: Boolean = false,
     val syncStatus: SyncStatus? = null,
     val lastSyncTime: Long? = null,
 
     val showFaturaConfigDialog: Boolean = false,
     val showMesAnoDialog: Boolean = false,
-    
+
     val diaFechamento: Int = 25,
     val diaVencimento: Int = 5,
-    val isPrivacyModeEnabled: Boolean = false
+    val isPrivacyModeEnabled: Boolean = false,
+    val isFaturaFechada: Boolean = false
 )
 
 enum class SyncStatus {

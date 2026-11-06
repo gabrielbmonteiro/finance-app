@@ -22,7 +22,7 @@ fun FiltrosBottomSheet(
     onApplyFilters: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
-    
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState
@@ -34,14 +34,17 @@ fun FiltrosBottomSheet(
         ) {
             Text("Filtros Avançados", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
-            
-            Text("Filtros de Data, Categoria, e Pessoa virão aqui.", color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.6f))
-            
+
+            Text(
+                "Filtros de Data, Categoria, e Pessoa virão aqui.",
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
             Button(
-                onClick = { 
+                onClick = {
                     onApplyFilters()
-                    onDismissRequest() 
+                    onDismissRequest()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

@@ -15,9 +15,9 @@ object NotificationParser {
 
 
             val valorString = rawValor.replace(".", "").replace(",", ".")
-            
+
             val valor = valorString.toDoubleOrNull()
-            
+
             val estabelecimento = matchResult.groupValues[2].trim()
 
             if (valor != null) {

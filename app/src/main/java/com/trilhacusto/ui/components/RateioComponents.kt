@@ -53,7 +53,8 @@ fun RateioInputField(
                 GlassTextField(
                     value = value,
                     onValueChange = { newValue ->
-                        val filtered = newValue.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+                        val filtered =
+                            newValue.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
                         onValueChange(filtered)
                     },
                     label = { Text(label) },
@@ -65,27 +66,31 @@ fun RateioInputField(
             }
             if (onRemoveClick != null) {
                 IconButton(onClick = onRemoveClick) {
-                    Icon(Icons.Default.Delete, contentDescription = "Remover", tint = MaterialTheme.colorScheme.error)
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Remover",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AtalhoRateio(texto = "0%", onClick = { onValueChange("0") })
-            AtalhoRateio(texto = "50%", onClick = { 
+            AtalhoRateio(texto = "50%", onClick = {
                 val metade = valorTotal / 2
-                onValueChange(String.format(java.util.Locale.US, "%.2f", metade)) 
+                onValueChange(String.format(java.util.Locale.US, "%.2f", metade))
             })
-            AtalhoRateio(texto = "100%", onClick = { 
-                onValueChange(String.format(java.util.Locale.US, "%.2f", valorTotal)) 
+            AtalhoRateio(texto = "100%", onClick = {
+                onValueChange(String.format(java.util.Locale.US, "%.2f", valorTotal))
             })
-            
+
             if (suggestionText != null && onSuggestionClick != null) {
                 Spacer(modifier = Modifier.weight(1f))
                 Box(
@@ -102,7 +107,11 @@ fun RateioInputField(
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("✨ R$ $suggestionText?", fontWeight = FontWeight.Bold, color = androidx.compose.ui.graphics.Color.White)
+                    Text(
+                        "✨ R$ $suggestionText?",
+                        fontWeight = FontWeight.Bold,
+                        color = androidx.compose.ui.graphics.Color.White
+                    )
                 }
             }
         }
@@ -120,7 +129,7 @@ fun AtalhoRateio(texto: String, onClick: () -> Unit) {
 fun FeedbackCard(soma: Double, valorTotal: Double, diferenca: Double, isFechado: Boolean) {
     val cardColor = if (isFechado) GreenPositive.copy(alpha = 0.1f) else RedError.copy(alpha = 0.1f)
     val textColor = if (isFechado) GreenPositive else RedError
-    
+
     val mensagem = when {
         soma == 0.0 -> "Nenhum rateio aplicado. Salvará como pendente."
         isFechado -> "Total fechado perfeitamente!"
@@ -132,7 +141,12 @@ fun FeedbackCard(soma: Double, valorTotal: Double, diferenca: Double, isFechado:
         containerColor = cardColor,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
                 text = mensagem,
                 color = textColor,

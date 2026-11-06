@@ -21,7 +21,10 @@ class TransacaoRepositoryImpl(
         transacaoDao.insertTransacao(transacao)
     }
 
-    override suspend fun salvarTransacaoComAtribuicoes(transacao: TransacaoEntity, atribuicoes: List<AtribuicaoTransacaoEntity>) {
+    override suspend fun salvarTransacaoComAtribuicoes(
+        transacao: TransacaoEntity,
+        atribuicoes: List<AtribuicaoTransacaoEntity>
+    ) {
         database.withTransaction {
             transacaoDao.insertTransacao(transacao)
             transacaoDao.insertAtribuicoes(atribuicoes)

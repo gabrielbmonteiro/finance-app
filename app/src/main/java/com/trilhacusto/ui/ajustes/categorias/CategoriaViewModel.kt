@@ -19,7 +19,9 @@ class CategoriaViewModel(
     private val _error = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun clearError() { _error.value = null }
+    fun clearError() {
+        _error.value = null
+    }
 
     fun salvarCategoria(categoria: CategoriaEntity) {
         viewModelScope.launch {

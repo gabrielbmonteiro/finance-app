@@ -14,6 +14,7 @@ import com.trilhacusto.R
 import com.trilhacusto.data.local.dao.ConfiguracoesDao
 import com.trilhacusto.data.local.dao.TransacaoDao
 import com.trilhacusto.data.remote.repository.PluggyNetworkRepository
+import com.trilhacusto.data.repository.UserPreferencesRepository
 import com.trilhacusto.domain.usecase.ProcessarTransacaoPluggyUseCase
 import com.trilhacusto.domain.usecase.TransacaoPluggyDto
 import kotlinx.coroutines.flow.firstOrNull
@@ -22,8 +23,6 @@ import org.koin.core.component.inject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-
-import com.trilhacusto.data.repository.UserPreferencesRepository
 
 class PluggySyncWorker(
     private val context: Context,
@@ -40,25 +39,29 @@ class PluggySyncWorker(
         Log.d("PluggySyncWorker", "Iniciando sincronização em background...")
         return try {
             val accountId = userPreferencesRepository.pluggyAccountId.firstOrNull()
-            
+
             if (accountId.isNullOrEmpty()) {
-                Log.d("PluggySyncWorker", "Sincronização abortada: Chaves da Pluggy não configuradas.")
+                Log.d(
+                    "PluggySyncWorker",
+                    "Sincronização abortada: Chaves da Pluggy não configuradas."
+                )
                 return Result.failure()
             }
-            // 1. Contar pendências atuais
-            val pendentesAntes = transacaoDao.getTransacoesPendentesList().count { it.transacao.statusAtribuicao == "PENDENTE" }
-            
-            // 2. Fazer requisição
+
+            val pendentesAntes = transacaoDao.getTransacoesPendentesList()
+                .count { it.transacao.statusAtribuicao == "PENDENTE" }
+
+
             val result = pluggyNetworkRepository.fetchTransactions(accountId)
-            
+
             if (result.isSuccess) {
                 val transactions = result.getOrNull() ?: emptyList()
-                
-                // Pegar limites da fatura
+
+
                 val config = configuracoesDao.getConfiguracoes().firstOrNull()
                 val fechamento = config?.diaFechamento ?: 25
                 val c = Calendar.getInstance()
-                
+
                 val inicioFaturaAtual = Calendar.getInstance().apply {
                     timeInMillis = c.timeInMillis
                     add(Calendar.MONTH, -1)
@@ -72,7 +75,8 @@ class PluggySyncWorker(
                     TransacaoPluggyDto(
                         id = it.id,
                         amount = it.amount,
-                        description = it.merchant?.name ?: it.merchant?.businessName ?: it.description,
+                        description = it.merchant?.name ?: it.merchant?.businessName
+                        ?: it.description,
                         date = try {
                             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
                             format.parse(it.date)?.time ?: System.currentTimeMillis()
@@ -84,21 +88,28 @@ class PluggySyncWorker(
                     )
                 }.filter { it.date >= inicioFaturaAtual }
 
-                // 3. Processar
+
                 processarTransacaoPluggyUseCase(dtos)
-                
-                // 4. Checar pendências de novo
-                val pendentesDepois = transacaoDao.getTransacoesPendentesList().count { it.transacao.statusAtribuicao == "PENDENTE" }
+
+
+                val pendentesDepois = transacaoDao.getTransacoesPendentesList()
+                    .count { it.transacao.statusAtribuicao == "PENDENTE" }
                 val novasPendencias = pendentesDepois - pendentesAntes
-                
+
                 if (novasPendencias > 0) {
                     enviarNotificacao(novasPendencias)
                 }
-                
-                Log.d("PluggySyncWorker", "Sincronização concluída. Novas pendências: $novasPendencias")
+
+                Log.d(
+                    "PluggySyncWorker",
+                    "Sincronização concluída. Novas pendências: $novasPendencias"
+                )
                 Result.success()
             } else {
-                Log.e("PluggySyncWorker", "Erro na API da Pluggy: ${result.exceptionOrNull()?.message}")
+                Log.e(
+                    "PluggySyncWorker",
+                    "Erro na API da Pluggy: ${result.exceptionOrNull()?.message}"
+                )
                 Result.retry()
             }
         } catch (e: Exception) {
@@ -109,9 +120,10 @@ class PluggySyncWorker(
 
     private fun enviarNotificacao(qtdPendencias: Int) {
         val channelId = "TrilhaCusto_sync_channel"
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Intent para abrir o app na aba de pendências (pode ser o Dashboard/Pendências)
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }

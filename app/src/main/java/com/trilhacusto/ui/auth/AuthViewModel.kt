@@ -9,10 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-import kotlinx.coroutines.flow.firstOrNull
 import java.security.MessageDigest
 
 class AuthViewModel(
@@ -26,7 +25,7 @@ class AuthViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
         )
-        
+
     val hasRegistered: StateFlow<Boolean?> = userPreferencesRepository.hasRegistered
         .stateIn(
             scope = viewModelScope,
@@ -44,7 +43,9 @@ class AuthViewModel(
     private val _passwordInput = MutableStateFlow("")
     val passwordInput: StateFlow<String> = _passwordInput.asStateFlow()
 
-    fun updatePasswordInput(value: String) { _passwordInput.value = value }
+    fun updatePasswordInput(value: String) {
+        _passwordInput.value = value
+    }
 
     fun loginWithPassword(onSuccess: () -> Unit, onError: () -> Unit) {
         viewModelScope.launch {

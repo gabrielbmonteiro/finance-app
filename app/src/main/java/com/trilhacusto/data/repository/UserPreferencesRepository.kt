@@ -5,8 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,7 +28,7 @@ class UserPreferencesRepository(private val context: Context) {
     val pluggyClientId: Flow<String?> = context.dataStore.data.map { it[PLUGGY_CLIENT_ID] }
     val pluggyClientSecret: Flow<String?> = context.dataStore.data.map { it[PLUGGY_CLIENT_SECRET] }
     val pluggyAccountId: Flow<String?> = context.dataStore.data.map { it[PLUGGY_ACCOUNT_ID] }
-    
+
     val hasRegistered: Flow<Boolean> = context.dataStore.data.map { it[HAS_REGISTERED] ?: false }
     val userPasswordHash: Flow<String?> = context.dataStore.data.map { it[USER_PASSWORD_HASH] }
     val lastSyncTime: Flow<Long?> = context.dataStore.data.map { it[LAST_SYNC_TIME] }
@@ -36,8 +36,8 @@ class UserPreferencesRepository(private val context: Context) {
     val isPluggyConfigured: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             !preferences[PLUGGY_CLIENT_ID].isNullOrEmpty() &&
-            !preferences[PLUGGY_CLIENT_SECRET].isNullOrEmpty() &&
-            !preferences[PLUGGY_ACCOUNT_ID].isNullOrEmpty()
+                    !preferences[PLUGGY_CLIENT_SECRET].isNullOrEmpty() &&
+                    !preferences[PLUGGY_ACCOUNT_ID].isNullOrEmpty()
         }
 
     suspend fun savePluggyCredentials(clientId: String, clientSecret: String, accountId: String) {
@@ -68,7 +68,7 @@ class UserPreferencesRepository(private val context: Context) {
             preferences[USER_PASSWORD_HASH] = hashed
         }
     }
-    
+
     suspend fun clearAllData() {
         context.dataStore.edit { preferences ->
             preferences.clear()

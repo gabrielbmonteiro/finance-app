@@ -5,20 +5,19 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,6 +34,7 @@ import com.trilhacusto.ui.export.ExportScreen
 import com.trilhacusto.ui.export.ExportViewModel
 import com.trilhacusto.ui.extrato.ExtratoScreen
 import com.trilhacusto.ui.extrato.ExtratoViewModel
+import com.trilhacusto.ui.pendencias.PendenciasExcluidasScreen
 import com.trilhacusto.ui.pendencias.PendenciasScreen
 import com.trilhacusto.ui.pendencias.PendenciasViewModel
 import com.trilhacusto.ui.rateio.AtribuicaoEvent
@@ -51,9 +51,9 @@ class MainActivity : FragmentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission is granted.
+
         } else {
-            // Explain to the user that the feature is unavailable.
+
         }
     }
 
@@ -61,7 +61,7 @@ class MainActivity : FragmentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -89,7 +89,7 @@ class MainActivity : FragmentActivity() {
                     val context = LocalContext.current
 
                     NavHost(navController = navController, startDestination = "splash") {
-                        
+
                         composable("splash") {
                             com.trilhacusto.ui.splash.SplashScreen(
                                 onSplashFinished = {
@@ -101,7 +101,8 @@ class MainActivity : FragmentActivity() {
                         }
 
                         composable("register") {
-                            val viewModel: com.trilhacusto.ui.auth.RegisterViewModel = koinViewModel()
+                            val viewModel: com.trilhacusto.ui.auth.RegisterViewModel =
+                                koinViewModel()
                             com.trilhacusto.ui.auth.RegisterScreen(
                                 viewModel = viewModel,
                                 onNavigateNext = {
@@ -136,7 +137,8 @@ class MainActivity : FragmentActivity() {
                         }
 
                         composable("onboarding") {
-                            val viewModel: com.trilhacusto.ui.onboarding.OnboardingViewModel = koinViewModel()
+                            val viewModel: com.trilhacusto.ui.onboarding.OnboardingViewModel =
+                                koinViewModel()
                             com.trilhacusto.ui.onboarding.OnboardingScreen(
                                 viewModel = viewModel,
                                 onNavigateToDashboard = {
@@ -157,7 +159,8 @@ class MainActivity : FragmentActivity() {
                         }
 
                         composable("account") {
-                            val viewModel: com.trilhacusto.ui.account.AccountViewModel = koinViewModel()
+                            val viewModel: com.trilhacusto.ui.account.AccountViewModel =
+                                koinViewModel()
                             com.trilhacusto.ui.account.AccountScreen(
                                 viewModel = viewModel,
                                 onNavigateToHome = {
@@ -212,15 +215,46 @@ class MainActivity : FragmentActivity() {
                                 onFecharSelecaoMesAno = { viewModel.setShowMesAnoDialog(false) },
                                 onAbrirConfiguracao = { viewModel.setShowConfigDialog(true) },
                                 onFecharConfiguracao = { viewModel.setShowConfigDialog(false) },
-                                onSalvarConfiguracao = { f, v -> viewModel.salvarConfiguracaoFatura(f, v) },
+                                onSalvarConfiguracao = { f, v ->
+                                    viewModel.salvarConfiguracaoFatura(
+                                        f,
+                                        v
+                                    )
+                                },
                                 onTogglePrivacyMode = { viewModel.togglePrivacyMode() },
-                                onNavigateToExport = { navController.navigate("export") },
+                                onNavigateToExport = {
+                                    navController.navigate("export?mes=${uiState.mesSelecionado}&ano=${uiState.anoSelecionado}")
+                                },
                                 onNavigateToAccount = { navController.navigate("account") }
                             )
                         }
 
-                        composable("export") {
+                        composable(
+                            route = "export?mes={mes}&ano={ano}",
+                            arguments = listOf(
+                                navArgument("mes") {
+                                    nullable = true
+                                    type = NavType.StringType
+                                },
+                                navArgument("ano") {
+                                    nullable = true
+                                    type = NavType.StringType
+                                }
+                            )
+                        ) { backStackEntry ->
+                            val mesStr = backStackEntry.arguments?.getString("mes")
+                            val anoStr = backStackEntry.arguments?.getString("ano")
                             val viewModel: ExportViewModel = koinViewModel()
+
+                            val mes = mesStr?.toIntOrNull()
+                                ?: java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)
+                            val ano = anoStr?.toIntOrNull()
+                                ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+
+                            LaunchedEffect(mes, ano) {
+                                viewModel.setMesAno(mes, ano)
+                            }
+
                             ExportScreen(
                                 viewModel = viewModel,
                                 onNavigateBack = { navController.popBackStack() }
@@ -230,12 +264,14 @@ class MainActivity : FragmentActivity() {
 
                         composable(
                             "extrato?pessoaId={pessoaId}",
-                            arguments = listOf(navArgument("pessoaId") { nullable = true; type = NavType.StringType })
+                            arguments = listOf(navArgument("pessoaId") {
+                                nullable = true; type = NavType.StringType
+                            })
                         ) { backStackEntry ->
                             val pessoaIdStr = backStackEntry.arguments?.getString("pessoaId")
                             val viewModel: ExtratoViewModel = koinViewModel()
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                            
+
                             LaunchedEffect(pessoaIdStr) {
                                 viewModel.initFilterFromRoute(pessoaIdStr?.toLongOrNull())
                             }
@@ -267,7 +303,7 @@ class MainActivity : FragmentActivity() {
                                 onTogglePrivacyMode = { viewModel.togglePrivacyMode() }
                             )
                         }
-                        
+
 
                         composable("pendencias") {
                             val viewModel: PendenciasViewModel = koinViewModel()
@@ -316,13 +352,39 @@ class MainActivity : FragmentActivity() {
                                 onNavigateToPessoas = {
                                     navController.navigate("pessoas")
                                 },
-                                onTogglePrivacyMode = { viewModel.togglePrivacyMode() }
+                                onLimparErro = { viewModel.limparErro() },
+                                onLimparMensagemSucesso = { viewModel.limparMensagemSucesso() },
+                                onTogglePrivacyMode = { viewModel.togglePrivacyMode() },
+                                onNavigateToExcluidas = {
+                                    navController.navigate("pendencias_excluidas")
+                                }
                             )
                         }
-                        
+
+                        composable("pendencias_excluidas") {
+                            val viewModel: PendenciasViewModel = koinViewModel()
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            PendenciasExcluidasScreen(
+                                uiState = uiState,
+                                onNavigateBack = { navController.popBackStack() },
+                                onRetirarDaExclusao = { transacaoId ->
+                                    viewModel.reativarTransacao(transacaoId)
+                                },
+                                onExcluirDefinitivamente = { transacaoId ->
+                                    viewModel.excluirDefinitivamente(transacaoId)
+                                },
+                                onBuscaChanged = { viewModel.atualizarBuscaExcluidas(it) },
+                                onTogglePrivacyMode = { viewModel.togglePrivacyMode() },
+                                onLimparErro = { viewModel.limparErro() },
+                                onLimparMensagemSucesso = { viewModel.limparMensagemSucesso() }
+                            )
+                        }
+
 
                         composable("rateio/{transacaoId}") { backStackEntry ->
-                            val transacaoId = backStackEntry.arguments?.getString("transacaoId") ?: ""
+                            val transacaoId =
+                                backStackEntry.arguments?.getString("transacaoId") ?: ""
                             val viewModel: AtribuicaoViewModel = koinViewModel()
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -330,13 +392,17 @@ class MainActivity : FragmentActivity() {
                             LaunchedEffect(transacaoId) {
                                 viewModel.carregarTransacao(transacaoId)
                             }
-                            
+
 
                             LaunchedEffect(Unit) {
                                 viewModel.eventos.collect { event ->
-                                    when(event) {
+                                    when (event) {
                                         is AtribuicaoEvent.Sucesso -> {
-                                            Toast.makeText(context, "Rateio salvo com sucesso!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Rateio salvo com sucesso!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                             navController.popBackStack()
                                         }
                                     }
@@ -347,26 +413,50 @@ class MainActivity : FragmentActivity() {
                                 uiState = uiState,
                                 onBackClicked = { navController.popBackStack() },
                                 onConfirmarRateio = { viewModel.confirmarRateio() },
-                                onParteChanged = { pessoaId, novoValor -> viewModel.atualizarParte(pessoaId, novoValor) },
+                                onParteChanged = { pessoaId, novoValor ->
+                                    viewModel.atualizarParte(
+                                        pessoaId,
+                                        novoValor
+                                    )
+                                },
                                 onTituloChanged = { viewModel.atualizarTitulo(it) },
                                 onValorTotalChanged = { viewModel.atualizarValorTotal(it) },
                                 onCategoriaSelecionada = { viewModel.atualizarCategoria(it) },
                                 onDataHoraChanged = { viewModel.atualizarDataHora(it) },
                                 onPessoaToggled = { viewModel.togglePessoaNaDivida(it) },
                                 onClearError = { viewModel.clearError() },
-                                onAddCategoria = { nome -> viewModel.adicionarCategoria(nome, "", "") },
-                                onEditCategoria = { cat, nome -> viewModel.editarCategoria(cat, nome) },
+                                onAddCategoria = { nome ->
+                                    viewModel.adicionarCategoria(
+                                        nome,
+                                        "",
+                                        ""
+                                    )
+                                },
+                                onEditCategoria = { cat, nome ->
+                                    viewModel.editarCategoria(
+                                        cat,
+                                        nome
+                                    )
+                                },
                                 onRemoveCategoria = { viewModel.deletarCategoria(it) },
                                 onNavigateToPessoas = { navController.navigate("pessoas") },
                                 onDividirIgualmente = { viewModel.dividirIgualmente() },
                                 onAceitarSugestao = { viewModel.aceitarSugestao() },
                                 onDropdownPessoaChanged = { viewModel.atualizarDropdownPessoa(it) },
                                 onDropdownValorChanged = { viewModel.atualizarDropdownValor(it) },
-                                onAdicionarResponsavelDropdown = { id -> viewModel.adicionarResponsavelDropdown(id) },
-                                onRemoverResponsavelDropdown = { viewModel.removerResponsavelDropdown(it) }
+                                onAdicionarResponsavelDropdown = { id ->
+                                    viewModel.adicionarResponsavelDropdown(
+                                        id
+                                    )
+                                },
+                                onRemoverResponsavelDropdown = {
+                                    viewModel.removerResponsavelDropdown(
+                                        it
+                                    )
+                                }
                             )
                         }
-                        
+
 
                         composable("transacao/nova") {
                             val viewModel: TransacaoFormViewModel = koinViewModel()
@@ -387,13 +477,24 @@ class MainActivity : FragmentActivity() {
                                 onSalvar = { viewModel.salvarTransacao() },
                                 onExcluir = { viewModel.excluirTransacao() },
                                 onLimparErro = { viewModel.limparErro() },
-                                onSalvarCategoria = { nome, cor, id -> viewModel.salvarCategoria(nome, cor, id) },
+                                onSalvarCategoria = { nome, cor, id ->
+                                    viewModel.salvarCategoria(
+                                        nome,
+                                        cor,
+                                        id
+                                    )
+                                },
                                 onDeletarCategoria = { viewModel.deletarCategoria(it) },
                                 onPessoaSugestaoChanged = { viewModel.atualizarPessoaSugestao(it) },
                                 onValorSugestaoChanged = { viewModel.atualizarValorSugestao(it) },
                                 onAdicionarResponsavel = { id -> viewModel.adicionarResponsavel(id) },
                                 onRemoverResponsavel = { viewModel.removerResponsavel(it) },
-                                onParteChanged = { id, valor -> viewModel.atualizarParteResponsavel(id, valor) },
+                                onParteChanged = { id, valor ->
+                                    viewModel.atualizarParteResponsavel(
+                                        id,
+                                        valor
+                                    )
+                                },
                                 onDividirIgualmente = { viewModel.dividirIgualmente() },
                                 onNavigateToPessoas = { navController.navigate("pessoas") },
                                 onAceitarSugestao = { viewModel.aceitarSugestao() }
@@ -403,11 +504,11 @@ class MainActivity : FragmentActivity() {
                         composable("transacao/edit/{id}") { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")
                             val viewModel: TransacaoFormViewModel = koinViewModel()
-                            
+
                             LaunchedEffect(id) {
                                 viewModel.carregarTransacao(id)
                             }
-                            
+
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                             TransacaoFormScreen(
@@ -421,19 +522,30 @@ class MainActivity : FragmentActivity() {
                                 onSalvar = { viewModel.salvarTransacao() },
                                 onExcluir = { viewModel.excluirTransacao() },
                                 onLimparErro = { viewModel.limparErro() },
-                                onSalvarCategoria = { nome, cor, id -> viewModel.salvarCategoria(nome, cor, id) },
+                                onSalvarCategoria = { nome, cor, id ->
+                                    viewModel.salvarCategoria(
+                                        nome,
+                                        cor,
+                                        id
+                                    )
+                                },
                                 onDeletarCategoria = { viewModel.deletarCategoria(it) },
                                 onPessoaSugestaoChanged = { viewModel.atualizarPessoaSugestao(it) },
                                 onValorSugestaoChanged = { viewModel.atualizarValorSugestao(it) },
                                 onAdicionarResponsavel = { id -> viewModel.adicionarResponsavel(id) },
                                 onRemoverResponsavel = { viewModel.removerResponsavel(it) },
-                                onParteChanged = { id, valor -> viewModel.atualizarParteResponsavel(id, valor) },
+                                onParteChanged = { id, valor ->
+                                    viewModel.atualizarParteResponsavel(
+                                        id,
+                                        valor
+                                    )
+                                },
                                 onDividirIgualmente = { viewModel.dividirIgualmente() },
                                 onNavigateToPessoas = { navController.navigate("pessoas") },
                                 onAceitarSugestao = { viewModel.aceitarSugestao() }
                             )
                         }
-                        
+
 
                         composable("categorias") {
                             val viewModel: CategoriaViewModel = koinViewModel()

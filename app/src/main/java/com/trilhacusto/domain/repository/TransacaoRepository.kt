@@ -10,7 +10,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface TransacaoRepository {
     suspend fun salvarTransacao(transacao: TransacaoEntity)
-    suspend fun salvarTransacaoComAtribuicoes(transacao: TransacaoEntity, atribuicoes: List<AtribuicaoTransacaoEntity>)
+    suspend fun salvarTransacaoComAtribuicoes(
+        transacao: TransacaoEntity,
+        atribuicoes: List<AtribuicaoTransacaoEntity>
+    )
+
     suspend fun atualizarTransacao(transacao: TransacaoEntity)
     suspend fun buscarRegrasAutomacao(): List<RegraAutomacaoEntity>
     suspend fun getTransacaoById(id: String): TransacaoEntity?
@@ -21,12 +25,17 @@ interface TransacaoRepository {
         transacaoAtualizada: TransacaoEntity,
         novasAtribuicoes: List<AtribuicaoTransacaoEntity>
     )
-    
+
     suspend fun deletarTransacao(transacao: TransacaoEntity)
     suspend fun deletarTransacaoPorId(transacaoId: String)
     suspend fun countAtribuicoesDaPessoa(pessoaId: Long): Int
     suspend fun reverterTransacoesDaPessoa(pessoaId: Long)
-    fun buscarTransacoesFiltradas(inicioTimestamp: Long, fimTimestamp: Long, queryBusca: String): kotlinx.coroutines.flow.Flow<List<com.trilhacusto.data.local.relation.TransacaoCompleta>>
+    fun buscarTransacoesFiltradas(
+        inicioTimestamp: Long,
+        fimTimestamp: Long,
+        queryBusca: String
+    ): kotlinx.coroutines.flow.Flow<List<com.trilhacusto.data.local.relation.TransacaoCompleta>>
+
     suspend fun salvarCategoria(categoria: CategoriaEntity)
     suspend fun deletarCategoria(categoria: CategoriaEntity)
 }

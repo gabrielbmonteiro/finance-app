@@ -21,8 +21,6 @@ class TransacaoNotificationService : NotificationListenerService() {
     private val serviceScope = CoroutineScope(Dispatchers.IO + job)
 
 
-
-
     lateinit var processarUseCase: ProcessarTransacaoPluggyUseCase
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {

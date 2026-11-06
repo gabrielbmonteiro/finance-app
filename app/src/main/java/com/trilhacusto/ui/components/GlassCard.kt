@@ -20,12 +20,12 @@ fun GlassCard(
     content: @Composable BoxScope.() -> Unit
 ) {
     val roundedShape = RoundedCornerShape(24.dp)
-    
+
     Box(
         modifier = modifier
             .clip(roundedShape)
     ) {
-        // Camada de Fundo com o blur e a cor de vidro
+
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -33,7 +33,7 @@ fun GlassCard(
                 .background(color = containerColor)
                 .border(width = 1.dp, color = GlassBorder, shape = roundedShape)
         )
-        // Camada de Conteúdo sem o blur
+
         Box {
             content()
         }

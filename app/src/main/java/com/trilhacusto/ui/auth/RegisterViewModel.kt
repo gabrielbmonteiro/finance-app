@@ -13,7 +13,6 @@ class RegisterViewModel(
 ) : ViewModel() {
 
 
-
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
@@ -21,13 +20,18 @@ class RegisterViewModel(
     val confirmPassword: StateFlow<String> = _confirmPassword.asStateFlow()
 
 
-    fun updatePassword(value: String) { _password.value = value }
-    fun updateConfirmPassword(value: String) { _confirmPassword.value = value }
+    fun updatePassword(value: String) {
+        _password.value = value
+    }
+
+    fun updateConfirmPassword(value: String) {
+        _confirmPassword.value = value
+    }
 
     fun register(onComplete: () -> Unit, onError: (String) -> Unit) {
         val p1 = _password.value.trim()
         val p2 = _confirmPassword.value.trim()
-        
+
         if (p1 != p2) {
             onError("As senhas não coincidem.")
             return

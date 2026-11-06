@@ -36,7 +36,10 @@ class TransacaoFormViewModel(
 
     fun carregarTransacao(id: String?) {
         if (id == null) {
-            _uiState.update { it.copy(isEditing = false, transacaoId = null) }
+            viewModelScope.launch {
+                val favoritos = pessoaDao.getFavoritos()
+                _uiState.update { it.copy(isEditing = false, transacaoId = null, pessoasNaDivida = favoritos) }
+            }
             return
         }
 
@@ -46,12 +49,22 @@ class TransacaoFormViewModel(
                 val transacaoCompleta = repository.getTransacaoCompletaById(id)
                 if (transacaoCompleta != null) {
                     val transacao = transacaoCompleta.transacao
-                    
+
                     val mapValores = mutableMapOf<Long, String>()
-                    val pessoasNaDivida = mutableListOf<com.trilhacusto.data.local.entity.PessoaEntity>()
-                    transacaoCompleta.atribuicoes.forEach { atrib ->
-                        mapValores[atrib.pessoa.id] = String.format(java.util.Locale.US, "%.2f", atrib.atribuicao.valorAtribuido)
-                        pessoasNaDivida.add(atrib.pessoa)
+                    val pessoasNaDivida =
+                        mutableListOf<com.trilhacusto.data.local.entity.PessoaEntity>()
+                    if (transacaoCompleta.atribuicoes.isNotEmpty()) {
+                        transacaoCompleta.atribuicoes.forEach { atrib ->
+                            mapValores[atrib.pessoa.id] = String.format(
+                                java.util.Locale.US,
+                                "%.2f",
+                                atrib.atribuicao.valorAtribuido
+                            )
+                            pessoasNaDivida.add(atrib.pessoa)
+                        }
+                    } else {
+                        val favoritos = pessoaDao.getFavoritos()
+                        pessoasNaDivida.addAll(favoritos)
                     }
 
                     _uiState.update { currentState ->
@@ -59,7 +72,8 @@ class TransacaoFormViewModel(
                             isLoading = false,
                             isEditing = true,
                             transacaoId = transacao.id,
-                            descricaoInput = transacao.descricaoCustomizada ?: transacao.descricaoOriginal,
+                            descricaoInput = transacao.descricaoCustomizada
+                                ?: transacao.descricaoOriginal,
                             valorInput = transacao.valorTotal.toString(),
                             dataHora = transacao.dataHora,
                             categoriaIdSelecionada = transacao.categoriaId,
@@ -68,10 +82,20 @@ class TransacaoFormViewModel(
                         )
                     }
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = "Transação não encontrada") }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Transação não encontrada"
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "Erro ao carregar: ${e.message}") }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Erro ao carregar: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -101,7 +125,8 @@ class TransacaoFormViewModel(
     }
 
     fun atualizarValorSugestao(valor: String) {
-        val filtrado = valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+        val filtrado =
+            valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
         _uiState.update { it.copy(valorSugestao = filtrado) }
     }
 
@@ -111,8 +136,10 @@ class TransacaoFormViewModel(
 
         if (!state.pessoasNaDivida.any { it.id == pessoaId }) {
             _uiState.update { currentState ->
-                val pessoasAtuais = currentState.pessoasNaDivida.toMutableList().apply { add(pessoa) }
-                val novosValores = currentState.valoresInput.toMutableMap().apply { put(pessoaId, "") }
+                val pessoasAtuais =
+                    currentState.pessoasNaDivida.toMutableList().apply { add(pessoa) }
+                val novosValores =
+                    currentState.valoresInput.toMutableMap().apply { put(pessoaId, "") }
                 currentState.copy(
                     pessoasNaDivida = pessoasAtuais,
                     valoresInput = novosValores
@@ -125,7 +152,7 @@ class TransacaoFormViewModel(
         val state = _uiState.value
         val novosValores = state.valoresInput.toMutableMap()
         novosValores.remove(pessoaId)
-        
+
         val novasPessoas = state.pessoasNaDivida.filter { it.id != pessoaId }
 
         _uiState.update {
@@ -137,20 +164,22 @@ class TransacaoFormViewModel(
     }
 
     fun atualizarParteResponsavel(pessoaId: Long, valor: String) {
-        val filtrado = valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
+        val filtrado =
+            valor.filterIndexed { index, c -> c.isDigit() || c == '.' || c == ',' || (index == 0 && c == '-') }
         _uiState.update { currentState ->
             val novosValores = currentState.valoresInput.toMutableMap()
             novosValores[pessoaId] = filtrado
-            
+
             val totalValue = currentState.valorInput.replace(",", ".").toDoubleOrNull() ?: 0.0
-            val sumParts = novosValores.values.sumOf { it.replace(",", ".").toDoubleOrNull() ?: 0.0 }
+            val sumParts =
+                novosValores.values.sumOf { it.replace(",", ".").toDoubleOrNull() ?: 0.0 }
             val remainder = totalValue - sumParts
-            
+
             var suggestedPessoaId: Long? = null
             var suggestedValue: String? = null
-            
+
             if (remainder > 0.009) {
-                val emptyPerson = currentState.pessoasNaDivida.firstOrNull { 
+                val emptyPerson = currentState.pessoasNaDivida.firstOrNull {
                     val v = novosValores[it.id]
                     v.isNullOrBlank() || (v.replace(",", ".").toDoubleOrNull() ?: 0.0) == 0.0
                 }
@@ -159,7 +188,7 @@ class TransacaoFormViewModel(
                     suggestedValue = String.format(java.util.Locale.US, "%.2f", remainder)
                 }
             }
-            
+
             currentState.copy(
                 valoresInput = novosValores,
                 pessoaIdSugestao = suggestedPessoaId,
@@ -190,16 +219,16 @@ class TransacaoFormViewModel(
         val state = _uiState.value
         val valorNumerico = state.valorInput.replace(",", ".").toDoubleOrNull() ?: 0.0
         val numPessoas = state.pessoasNaDivida.size
-        
+
         if (numPessoas > 0 && valorNumerico > 0) {
             val valorPorPessoa = valorNumerico / numPessoas
             val valorFormatado = String.format(java.util.Locale.US, "%.2f", valorPorPessoa)
-            
+
             val novosValores = state.valoresInput.toMutableMap()
             state.pessoasNaDivida.forEach { pessoa ->
                 novosValores[pessoa.id] = valorFormatado
             }
-            
+
             _uiState.update { it.copy(valoresInput = novosValores) }
         }
     }
@@ -208,7 +237,7 @@ class TransacaoFormViewModel(
         val state = _uiState.value
         val valorNumerico = state.valorInput.replace(",", ".").toDoubleOrNull()
         val numParcelas = state.parcelasInput.toIntOrNull() ?: 1
-        
+
         if (state.descricaoInput.isBlank() || valorNumerico == null || valorNumerico == 0.0 || numParcelas < 1) {
             _uiState.update { it.copy(error = "Preencha a descrição, valor (diferente de zero) e parcelas válidos.") }
             return
@@ -239,10 +268,12 @@ class TransacaoFormViewModel(
                             dataHora = state.dataHora,
                             statusAtribuicao = status
                         )
-                        
+
                         val novasAtribuicoes = state.pessoasNaDivida.mapNotNull { pessoa ->
-                            val valorAtribuidoTotal = state.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull() ?: 0.0
-                            if (valorAtribuidoTotal > 0) {
+                            val valorAtribuidoTotal =
+                                state.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull()
+                                    ?: 0.0
+                            if (valorAtribuidoTotal != 0.0) {
                                 com.trilhacusto.data.local.entity.AtribuicaoTransacaoEntity(
                                     transacaoId = transacaoAtualizada.id,
                                     pessoaId = pessoa.id,
@@ -250,17 +281,21 @@ class TransacaoFormViewModel(
                                 )
                             } else null
                         }
-                        
-                        repository.atribuirRateio(state.transacaoId, transacaoAtualizada, novasAtribuicoes)
+
+                        repository.atribuirRateio(
+                            state.transacaoId,
+                            transacaoAtualizada,
+                            novasAtribuicoes
+                        )
                     }
                 } else {
                     val valorPorParcela = valorNumerico / numParcelas
-                    
+
                     for (i in 1..numParcelas) {
                         val c = java.util.Calendar.getInstance()
                         c.timeInMillis = state.dataHora
                         c.add(java.util.Calendar.MONTH, i - 1)
-                        
+
                         val novaTransacao = TransacaoEntity(
                             id = UUID.randomUUID().toString(),
                             descricaoOriginal = if (numParcelas > 1) "${state.descricaoInput} $i/$numParcelas" else state.descricaoInput,
@@ -271,10 +306,12 @@ class TransacaoFormViewModel(
                             numeroParcela = if (numParcelas > 1) i else null,
                             totalParcelas = if (numParcelas > 1) numParcelas else null
                         )
-                        
+
                         val novasAtribuicoes = state.pessoasNaDivida.mapNotNull { pessoa ->
-                            val valorAtribuidoTotal = state.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull() ?: 0.0
-                            if (valorAtribuidoTotal > 0) {
+                            val valorAtribuidoTotal =
+                                state.valoresInput[pessoa.id]?.replace(",", ".")?.toDoubleOrNull()
+                                    ?: 0.0
+                            if (valorAtribuidoTotal != 0.0) {
                                 AtribuicaoTransacaoEntity(
                                     transacaoId = novaTransacao.id,
                                     pessoaId = pessoa.id,
@@ -284,35 +321,48 @@ class TransacaoFormViewModel(
                         }
 
                         if (novasAtribuicoes.isNotEmpty()) {
-                            repository.salvarTransacaoComAtribuicoes(novaTransacao, novasAtribuicoes)
+                            repository.salvarTransacaoComAtribuicoes(
+                                novaTransacao,
+                                novasAtribuicoes
+                            )
                         } else {
                             repository.salvarTransacao(novaTransacao)
                         }
                     }
                 }
-                
+
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "Erro ao salvar: ${e.message}") }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Erro ao salvar: ${e.message}"
+                    )
+                }
             }
         }
     }
-    
+
     fun excluirTransacao() {
         val state = _uiState.value
         if (!state.isEditing || state.transacaoId == null) return
-        
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 repository.deletarTransacaoPorId(state.transacaoId)
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "Erro ao excluir: ${e.message}") }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Erro ao excluir: ${e.message}"
+                    )
+                }
             }
         }
     }
-    
+
     fun limparErro() {
         _uiState.update { it.copy(error = null) }
     }
@@ -324,7 +374,8 @@ class TransacaoFormViewModel(
                     val novaCat = CategoriaEntity(nome = nome, corHex = corHex, icone = "")
                     repository.salvarCategoria(novaCat)
                 } else {
-                    val categoriaEditada = CategoriaEntity(id = id, nome = nome, corHex = corHex, icone = "")
+                    val categoriaEditada =
+                        CategoriaEntity(id = id, nome = nome, corHex = corHex, icone = "")
                     repository.salvarCategoria(categoriaEditada)
                 }
             } catch (e: Exception) {

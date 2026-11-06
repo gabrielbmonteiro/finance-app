@@ -1,12 +1,16 @@
 package com.trilhacusto.data.remote.repository
 
 import com.trilhacusto.data.remote.api.PluggyApiService
+import com.trilhacusto.data.remote.dto.PluggyAuthResponse
+import com.trilhacusto.data.repository.UserPreferencesRepository
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
@@ -15,7 +19,15 @@ import java.io.IOException
 class PluggyNetworkRepositoryTest {
 
     private val apiService: PluggyApiService = mockk()
-    private val repository = PluggyNetworkRepository(apiService)
+    private val userPrefs: UserPreferencesRepository = mockk()
+    private val repository = PluggyNetworkRepository(apiService, userPrefs)
+
+    @Before
+    fun setup() {
+        coEvery { userPrefs.pluggyClientId } returns flowOf("mock_client_id")
+        coEvery { userPrefs.pluggyClientSecret } returns flowOf("mock_client_secret")
+        coEvery { apiService.auth(any()) } returns Response.success(PluggyAuthResponse("mock_api_key"))
+    }
 
     @Test
     fun deve_retornar_failure_quando_api_retornar_http_500() = runTest {
@@ -23,31 +35,37 @@ class PluggyNetworkRepositoryTest {
         val errorResponseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
         val errorResponse = Response.error<Any>(500, errorResponseBody)
         val httpException = HttpException(errorResponse)
-        
-        coEvery { apiService.getTransactions(any()) } throws httpException
+
+        coEvery { apiService.getTransactions(any(), any()) } throws httpException
 
         // Act
         val result = repository.fetchTransactions("acc_123")
 
         // Assert
         assertTrue("Deveria retornar failure ao receber HTTP 500", result.isFailure)
-        
+
         val exception = result.exceptionOrNull()
-        assertTrue("A exceção deveria relatar HttpException", exception?.message?.contains("HttpException") == true)
+        assertTrue(
+            "A exceção deveria relatar HttpException",
+            exception?.message?.contains("HttpException") == true
+        )
     }
 
     @Test
     fun deve_retornar_failure_quando_nao_houver_internet() = runTest {
         // Arrange
-        coEvery { apiService.getTransactions(any()) } throws IOException("Sem Internet")
+        coEvery { apiService.getTransactions(any(), any()) } throws IOException("Sem Internet")
 
         // Act
         val result = repository.fetchTransactions("acc_123")
 
         // Assert
         assertTrue("Deveria retornar failure ao ter IOException", result.isFailure)
-        
+
         val exception = result.exceptionOrNull()
-        assertTrue("A exceção deveria avisar sobre a rede", exception?.message?.contains("Falha de conexão com a Internet") == true)
+        assertTrue(
+            "A exceção deveria avisar sobre a rede",
+            exception?.message?.contains("Falha de conexão com a Internet") == true
+        )
     }
 }

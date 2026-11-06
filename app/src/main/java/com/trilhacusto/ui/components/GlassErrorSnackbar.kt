@@ -32,7 +32,7 @@ fun GlassErrorSnackbar(
     modifier: Modifier = Modifier
 ) {
     val isVisible = errorMessage != null
-    
+
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {
             delay(3000)

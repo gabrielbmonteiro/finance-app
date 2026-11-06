@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 class AppApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        
+
         startKoin {
             androidContext(this@AppApplication)
             modules(appModules)
@@ -37,7 +37,8 @@ class AppApplication : Application() {
             val channel = NotificationChannel("TrilhaCusto_sync_channel", name, importance).apply {
                 description = descriptionText
             }
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

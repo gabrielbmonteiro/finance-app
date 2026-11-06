@@ -19,19 +19,19 @@ class PluggyNetworkRepository(
             try {
                 val clientId = userPrefs.pluggyClientId.firstOrNull() ?: ""
                 val clientSecret = userPrefs.pluggyClientSecret.firstOrNull() ?: ""
-                
+
                 val authReq = PluggyAuthRequest(clientId, clientSecret)
                 val authRes = apiService.auth(authReq)
-                
+
                 if (!authRes.isSuccessful || authRes.body() == null) {
                     return@withContext Result.failure(Exception("Falha na autenticação da Pluggy: ${authRes.code()}"))
                 }
-                
+
                 val apiKey = authRes.body()!!.apiKey
 
 
                 val response = apiService.getTransactions(apiKey = apiKey, accountId = accountId)
-                
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {

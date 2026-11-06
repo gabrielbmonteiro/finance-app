@@ -10,14 +10,14 @@ data class RateioUiState(
     val tituloInput: String = "",
     val valorTotalInput: String = "",
     val dataHora: Long = 0L,
-    
+
     val categoriaIdSelecionada: Long? = null,
     val categorias: List<CategoriaEntity> = emptyList(),
-    
+
     val pessoasNaDivida: List<PessoaEntity> = emptyList(),
     val todasAsPessoas: List<PessoaEntity> = emptyList(),
     val valoresInput: Map<Long, String> = emptyMap(),
-    
+
     val pessoaIdSugestao: Long? = null,
     val valorSugestao: String? = null,
     val dropdownPessoaId: Long? = null,

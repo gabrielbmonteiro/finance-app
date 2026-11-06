@@ -44,17 +44,22 @@ fun GlassDatePicker(
     var currentYear by remember { mutableStateOf(initialCal.get(Calendar.YEAR)) }
     var selectedDateMillis by remember { mutableStateOf(initialDateMillis) }
 
-    val meses = listOf("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez")
+    val meses =
+        listOf("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez")
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         if (isSelectingMonthYear) {
-            // MODO: Seleção de Mês e Ano (Igual ao Dashboard)
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 IconButton(onClick = { currentYear-- }) {
                     Text("<", color = MaterialTheme.colorScheme.onSurface)
@@ -80,7 +85,10 @@ fun GlassDatePicker(
                 itemsIndexed(meses) { index, mes ->
                     val isSelected = index == currentMonth
                     val bgColor = if (isSelected) PrimaryAccent else Color.White.copy(alpha = 0.1f)
-                    val textColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    val textColor =
+                        if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.7f
+                        )
 
                     Box(
                         modifier = Modifier
@@ -97,11 +105,13 @@ fun GlassDatePicker(
                 }
             }
         } else {
-            // MODO: Seleção de Dias
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 IconButton(onClick = {
                     if (currentMonth == 0) {
@@ -113,15 +123,17 @@ fun GlassDatePicker(
                 }) {
                     Text("<", color = MaterialTheme.colorScheme.onSurface)
                 }
-                
+
                 Text(
                     text = "${meses[currentMonth]} $currentYear",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable { isSelectingMonthYear = true }.padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier
+                        .clickable { isSelectingMonthYear = true }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
-                
+
                 IconButton(onClick = {
                     if (currentMonth == 11) {
                         currentMonth = 0
@@ -134,8 +146,11 @@ fun GlassDatePicker(
                 }
             }
 
-            // Dias da Semana
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 val diasSemana = listOf("D", "S", "T", "Q", "Q", "S", "S")
                 diasSemana.forEach { dia ->
                     Text(
@@ -149,21 +164,24 @@ fun GlassDatePicker(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Grid de Dias
+
             val cal = Calendar.getInstance().apply {
                 set(Calendar.YEAR, currentYear)
                 set(Calendar.MONTH, currentMonth)
                 set(Calendar.DAY_OF_MONTH, 1)
             }
             val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-            val firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1 // 0 for Sunday
-            
+            val firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1
+
             val totalCells = daysInMonth + firstDayOfWeek
             val rows = Math.ceil(totalCells / 7.0).toInt()
 
             Column(modifier = Modifier.fillMaxWidth()) {
                 for (row in 0 until rows) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         for (col in 0 until 7) {
                             val cellIndex = row * 7 + col
                             val dayNumber = cellIndex - firstDayOfWeek + 1
@@ -178,14 +196,16 @@ fun GlassDatePicker(
                                     set(Calendar.SECOND, 0)
                                     set(Calendar.MILLISECOND, 0)
                                 }
-                                
-                                val selectedCal = Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
+
+                                val selectedCal = Calendar.getInstance()
+                                    .apply { timeInMillis = selectedDateMillis }
                                 val isSelected = selectedCal.get(Calendar.YEAR) == currentYear &&
-                                                 selectedCal.get(Calendar.MONTH) == currentMonth &&
-                                                 selectedCal.get(Calendar.DAY_OF_MONTH) == dayNumber
+                                        selectedCal.get(Calendar.MONTH) == currentMonth &&
+                                        selectedCal.get(Calendar.DAY_OF_MONTH) == dayNumber
 
                                 val bgColor = if (isSelected) PrimaryAccent else Color.Transparent
-                                val textColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+                                val textColor =
+                                    if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
 
                                 Box(
                                     modifier = Modifier
@@ -199,10 +219,17 @@ fun GlassDatePicker(
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(text = dayNumber.toString(), color = textColor, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
+                                    Text(
+                                        text = dayNumber.toString(),
+                                        color = textColor,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
                                 }
                             } else {
-                                Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(2.dp))
+                                Spacer(modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f)
+                                    .padding(2.dp))
                             }
                         }
                     }

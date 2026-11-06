@@ -6,8 +6,10 @@ import com.trilhacusto.data.local.dao.CategoriaDao
 import com.trilhacusto.data.local.dao.PessoaDao
 import com.trilhacusto.data.local.dao.RegraAutomacaoDao
 import com.trilhacusto.data.local.dao.TransacaoDao
+import com.trilhacusto.data.local.dao.FaturaDao
 import com.trilhacusto.data.local.entity.AtribuicaoTransacaoEntity
 import com.trilhacusto.data.local.entity.CategoriaEntity
+import com.trilhacusto.data.local.entity.FaturaEntity
 import com.trilhacusto.data.local.entity.PessoaEntity
 import com.trilhacusto.data.local.entity.RegraAutomacaoEntity
 import com.trilhacusto.data.local.entity.TransacaoEntity
@@ -19,9 +21,10 @@ import com.trilhacusto.data.local.entity.TransacaoEntity
         TransacaoEntity::class,
         AtribuicaoTransacaoEntity::class,
         RegraAutomacaoEntity::class,
-        com.trilhacusto.data.local.entity.ConfiguracoesEntity::class
+        com.trilhacusto.data.local.entity.ConfiguracoesEntity::class,
+        FaturaEntity::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,4 +33,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoriaDao(): CategoriaDao
     abstract fun regraAutomacaoDao(): RegraAutomacaoDao
     abstract fun configuracoesDao(): com.trilhacusto.data.local.dao.ConfiguracoesDao
+    abstract fun faturaDao(): FaturaDao
 }

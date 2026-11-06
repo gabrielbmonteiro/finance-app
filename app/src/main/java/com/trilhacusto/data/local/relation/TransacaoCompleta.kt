@@ -8,13 +8,13 @@ import com.trilhacusto.data.local.entity.TransacaoEntity
 
 data class TransacaoCompleta(
     @Embedded val transacao: TransacaoEntity,
-    
+
     @Relation(
         parentColumn = "categoriaId",
         entityColumn = "id"
     )
     val categoria: CategoriaEntity?,
-    
+
     @Relation(
         entity = AtribuicaoTransacaoEntity::class,
         parentColumn = "id",

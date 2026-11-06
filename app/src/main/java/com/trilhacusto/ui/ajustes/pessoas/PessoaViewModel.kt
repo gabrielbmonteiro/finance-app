@@ -27,6 +27,12 @@ class PessoaViewModel(
         }
     }
 
+    fun toggleFavorito(pessoa: PessoaEntity) {
+        viewModelScope.launch {
+            pessoaDao.updateFavorito(pessoa.id, !pessoa.isFavorito)
+        }
+    }
+
     suspend fun checkHasDebts(pessoaId: Long): Boolean {
         return try {
             transacaoRepository.countAtribuicoesDaPessoa(pessoaId) > 0
@@ -41,7 +47,7 @@ class PessoaViewModel(
                 transacaoRepository.reverterTransacoesDaPessoa(pessoa.id)
                 pessoaDao.delete(pessoa)
             } catch (e: Exception) {
-                // Em um app real, poderíamos emitir um erro via fluxo
+
                 e.printStackTrace()
             }
         }

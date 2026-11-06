@@ -41,24 +41,24 @@ fun TransacaoCardItem(
     isPrivacyModeEnabled: Boolean = false
 ) {
     val transacao = transacaoCompleta.transacao
-    
+
     val baseTitulo = transacao.descricaoCustomizada ?: transacao.descricaoOriginal
-    
+
     val parcelasStr = if (transacao.numeroParcela != null && transacao.totalParcelas != null) {
         " (${transacao.numeroParcela}/${transacao.totalParcelas})"
     } else ""
-    
+
     val titulo = baseTitulo + parcelasStr
     val dataFormatada = transacao.dataHora.formatDateWithYearIfNeeded(includeTime = true)
 
     val temAtribuicoes = transacaoCompleta.atribuicoes.isNotEmpty()
     val isIgnorado = transacao.statusAtribuicao == "IGNORADO"
-    
+
     val atribuicaoDoFiltro = if (filtroPessoaId != null) {
         transacaoCompleta.atribuicoes.find { it.pessoa.id == filtroPessoaId }
     } else null
     val valorPrincipal = atribuicaoDoFiltro?.atribuicao?.valorAtribuido ?: transacao.valorTotal
-    
+
     com.trilhacusto.ui.components.GlassCard(
         modifier = modifier
             .fillMaxWidth()
@@ -87,7 +87,7 @@ fun TransacaoCardItem(
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -117,7 +117,11 @@ fun TransacaoCardItem(
                     )
                     if (atribuicaoDoFiltro != null) {
                         Text(
-                            text = "Total: ${transacao.valorTotal.toCurrencyString(isPrivacyModeEnabled)}",
+                            text = "Total: ${
+                                transacao.valorTotal.toCurrencyString(
+                                    isPrivacyModeEnabled
+                                )
+                            }",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
@@ -138,11 +142,15 @@ fun TransacaoCardItem(
                 Spacer(modifier = Modifier.height(8.dp))
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 val textoRateio = transacaoCompleta.atribuicoes.joinToString(" / ") {
-                    "${it.pessoa.nome}: ${it.atribuicao.valorAtribuido.toCurrencyString(isPrivacyModeEnabled)}"
+                    "${it.pessoa.nome}: ${
+                        it.atribuicao.valorAtribuido.toCurrencyString(
+                            isPrivacyModeEnabled
+                        )
+                    }"
                 }
-                
+
                 Text(
                     text = textoRateio,
                     style = MaterialTheme.typography.labelSmall,

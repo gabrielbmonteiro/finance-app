@@ -22,4 +22,10 @@ interface PessoaDao {
 
     @Query("SELECT * FROM pessoas")
     fun getAll(): Flow<List<PessoaEntity>>
+
+    @Query("SELECT * FROM pessoas WHERE isFavorito = 1")
+    suspend fun getFavoritos(): List<PessoaEntity>
+
+    @Query("UPDATE pessoas SET isFavorito = :isFavorito WHERE id = :id")
+    suspend fun updateFavorito(id: Long, isFavorito: Boolean)
 }

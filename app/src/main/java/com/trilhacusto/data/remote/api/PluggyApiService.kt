@@ -11,10 +11,10 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface PluggyApiService {
-    
+
     @POST("/auth")
     suspend fun auth(@Body request: PluggyAuthRequest): Response<PluggyAuthResponse>
-    
+
     @GET("/v2/transactions")
     suspend fun getTransactions(
         @Header("X-API-KEY") apiKey: String,

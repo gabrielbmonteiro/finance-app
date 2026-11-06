@@ -12,12 +12,14 @@ fun Double.toCurrencyString(isPrivacyMode: Boolean = false): String {
 
 fun Long.formatDateWithYearIfNeeded(includeTime: Boolean = false): String {
     val calAtual = java.util.Calendar.getInstance()
-    val calData = java.util.Calendar.getInstance().apply { timeInMillis = this@formatDateWithYearIfNeeded }
+    val calData =
+        java.util.Calendar.getInstance().apply { timeInMillis = this@formatDateWithYearIfNeeded }
     val mesmoAno = calAtual.get(java.util.Calendar.YEAR) == calData.get(java.util.Calendar.YEAR)
-    
+
     val pattern = when {
         includeTime -> "dd MMM yy, HH:mm"
         else -> "dd MMM yy"
     }
-    return java.text.SimpleDateFormat(pattern, Locale("pt", "BR")).format(java.util.Date(this)).replace(".", "")
+    return java.text.SimpleDateFormat(pattern, Locale("pt", "BR")).format(java.util.Date(this))
+        .replace(".", "")
 }

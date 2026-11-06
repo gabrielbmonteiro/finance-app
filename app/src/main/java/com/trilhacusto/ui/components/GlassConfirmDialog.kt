@@ -34,9 +34,13 @@ fun GlassConfirmDialog(
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        val darkerColor = if (isDestructive) androidx.compose.ui.graphics.Color(0xFF1E1E1E).copy(alpha = 0.90f) else if (isDarker) androidx.compose.ui.graphics.Color(0xFF151515).copy(alpha = 0.85f) else com.trilhacusto.ui.theme.GlassBackground
+        val darkerColor = if (isDestructive) androidx.compose.ui.graphics.Color(0xFF1E1E1E)
+            .copy(alpha = 0.90f) else if (isDarker) androidx.compose.ui.graphics.Color(0xFF151515)
+            .copy(alpha = 0.85f) else com.trilhacusto.ui.theme.GlassBackground
         GlassCard(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             containerColor = darkerColor
         ) {
             Column(
@@ -52,9 +56,9 @@ fun GlassConfirmDialog(
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 if (text != null) {
                     Text(
                         text = text,
@@ -63,13 +67,13 @@ fun GlassConfirmDialog(
                         textAlign = TextAlign.Center
                     )
                 }
-                
+
                 if (content != null) {
                     content()
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -80,9 +84,9 @@ fun GlassConfirmDialog(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    
+
                     TextButton(onClick = onConfirm) {
                         Text(
                             text = confirmButtonText,

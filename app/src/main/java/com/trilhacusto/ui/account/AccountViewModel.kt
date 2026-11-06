@@ -16,10 +16,10 @@ class AccountViewModel(
 
     val clientId: StateFlow<String?> = userPrefs.pluggyClientId
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-        
+
     val clientSecret: StateFlow<String?> = userPrefs.pluggyClientSecret
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-        
+
     val accountId: StateFlow<String?> = userPrefs.pluggyAccountId
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -29,10 +29,19 @@ class AccountViewModel(
     private val _confirmNewPassword = MutableStateFlow("")
     val confirmNewPassword: StateFlow<String> = _confirmNewPassword.asStateFlow()
 
-    fun updateNewPassword(value: String) { _newPassword.value = value }
-    fun updateConfirmNewPassword(value: String) { _confirmNewPassword.value = value }
+    fun updateNewPassword(value: String) {
+        _newPassword.value = value
+    }
 
-    fun updatePluggyCredentials(newClientId: String, newClientSecret: String, newAccountId: String) {
+    fun updateConfirmNewPassword(value: String) {
+        _confirmNewPassword.value = value
+    }
+
+    fun updatePluggyCredentials(
+        newClientId: String,
+        newClientSecret: String,
+        newAccountId: String
+    ) {
         viewModelScope.launch {
             userPrefs.savePluggyCredentials(newClientId, newClientSecret, newAccountId)
         }

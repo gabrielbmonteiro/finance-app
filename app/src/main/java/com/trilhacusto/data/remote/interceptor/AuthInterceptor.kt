@@ -8,11 +8,11 @@ class AuthInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        
+
         val newRequest = originalRequest.newBuilder()
             .header("X-API-KEY", apiKey)
             .build()
-            
+
         return chain.proceed(newRequest)
     }
 }

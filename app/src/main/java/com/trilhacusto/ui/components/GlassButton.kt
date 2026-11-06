@@ -27,9 +27,9 @@ fun GlassButton(
     val electricBlue = Color(0xFF2563EB)
     val softPurple = Color(0xFF8B5CF6)
     val glassDisabledColor = com.trilhacusto.ui.theme.GlassBackground
-    
+
     val shape = RoundedCornerShape(percent = 50)
-    
+
     val gradientBrush = Brush.linearGradient(
         colors = listOf(electricBlue, softPurple)
     )
@@ -43,13 +43,18 @@ fun GlassButton(
             containerColor = Color.Transparent,
             disabledContainerColor = Color.Transparent
         ),
-        contentPadding = PaddingValues(0.dp) // We will handle padding inside the Box
+        contentPadding = PaddingValues(0.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    brush = if (enabled) gradientBrush else Brush.linearGradient(listOf(glassDisabledColor, glassDisabledColor)),
+                    brush = if (enabled) gradientBrush else Brush.linearGradient(
+                        listOf(
+                            glassDisabledColor,
+                            glassDisabledColor
+                        )
+                    ),
                     shape = shape
                 )
                 .padding(vertical = 16.dp),

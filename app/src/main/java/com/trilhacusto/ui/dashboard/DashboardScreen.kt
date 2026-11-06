@@ -31,12 +31,14 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,8 +49,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -92,18 +97,30 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = { onMudarMes(-1) }) {
-                            Text("<", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+                            Text(
+                                "<",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(percent = 20))
-                                .background(androidx.compose.ui.graphics.Brush.linearGradient(colors = listOf(com.trilhacusto.ui.theme.GlassBackground, com.trilhacusto.ui.theme.GlassBackground)))
-                                .border(1.dp, com.trilhacusto.ui.theme.GlassBorder,
+                                .background(
+                                    androidx.compose.ui.graphics.Brush.linearGradient(
+                                        colors = listOf(
+                                            com.trilhacusto.ui.theme.GlassBackground,
+                                            com.trilhacusto.ui.theme.GlassBackground
+                                        )
+                                    )
+                                )
+                                .border(
+                                    1.dp, com.trilhacusto.ui.theme.GlassBorder,
                                     RoundedCornerShape(percent = 20)
                                 )
                                 .clickable { onAbrirSelecaoMesAno() }
@@ -112,24 +129,37 @@ fun DashboardScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = uiState.mesAtual, 
-                                    fontWeight = FontWeight.Bold, 
+                                    text = uiState.mesAtual,
+                                    fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Trocar Mês", tint = MaterialTheme.colorScheme.onSurface)
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = "Trocar Mês",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         }
                         IconButton(onClick = { onMudarMes(1) }) {
-                            Text(">", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+                            Text(
+                                ">",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 },
                 actions = {
                     IconButton(onClick = onTogglePrivacyMode) {
-                        val icon = if (uiState.isPrivacyModeEnabled) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                        Icon(icon, contentDescription = "Alternar Visibilidade", tint = MaterialTheme.colorScheme.onBackground)
+                        val icon =
+                            if (uiState.isPrivacyModeEnabled) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                        Icon(
+                            icon,
+                            contentDescription = "Alternar Visibilidade",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -167,7 +197,9 @@ fun DashboardScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
@@ -185,7 +217,10 @@ fun DashboardScreen(
         if (uiState.showSyncLoading) {
             androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
                 ElevatedCard {
-                    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Sincronizando com a Pluggy...")
@@ -197,13 +232,26 @@ fun DashboardScreen(
                 com.trilhacusto.ui.components.GlassCard(
                     containerColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f)
                 ) {
-                    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         if (uiState.syncStatus == SyncStatus.SUCCESS) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GreenPositive, modifier = Modifier.size(48.dp))
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = GreenPositive,
+                                modifier = Modifier.size(48.dp)
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text("Sincronizado com Sucesso!", fontWeight = FontWeight.Bold)
                         } else {
-                            Icon(Icons.Default.Clear, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(48.dp))
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(48.dp)
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text("Erro na Sincronização.", fontWeight = FontWeight.Bold)
                             if (uiState.error != null) {
@@ -237,11 +285,19 @@ fun DashboardScreen(
                 dismissButtonText = "Cancelar",
                 content = {
                     Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Define o fechamento e vencimento de faturas atuais e futuras. Faturas já fechadas não serão alteradas.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
                         GlassTextField(
                             value = fechamento,
                             onValueChange = { fechamento = it.filter { char -> char.isDigit() } },
                             label = { Text("Dia de Fechamento") },
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                keyboardType = KeyboardType.Number
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -249,21 +305,46 @@ fun DashboardScreen(
                             value = vencimento,
                             onValueChange = { vencimento = it.filter { char -> char.isDigit() } },
                             label = { Text("Dia de Vencimento") },
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                keyboardType = KeyboardType.Number
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             )
         }
-        
+
         if (uiState.showMesAnoDialog) {
-            val meses = listOf("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez")
-            var selectedAno by remember(uiState.anoSelecionado) { mutableStateOf(if (uiState.anoSelecionado > 0) uiState.anoSelecionado else java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)) }
-            
+            val meses = listOf(
+                "Jan",
+                "Fev",
+                "Mar",
+                "Abr",
+                "Mai",
+                "Jun",
+                "Jul",
+                "Ago",
+                "Set",
+                "Out",
+                "Nov",
+                "Dez"
+            )
+            var selectedAno by remember(uiState.anoSelecionado) {
+                mutableStateOf(
+                    if (uiState.anoSelecionado > 0) uiState.anoSelecionado else java.util.Calendar.getInstance()
+                        .get(java.util.Calendar.YEAR)
+                )
+            }
+
             GlassConfirmDialog(
                 onDismissRequest = { onFecharSelecaoMesAno() },
-                onConfirm = { onSelecionarMesAno(java.util.Calendar.getInstance().get(java.util.Calendar.MONTH), java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)) },
+                onConfirm = {
+                    onSelecionarMesAno(
+                        java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
+                        java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                    )
+                },
                 title = "Escolher Mês e Ano",
                 isDarker = true,
                 confirmButtonText = "Mês Atual",
@@ -273,17 +354,25 @@ fun DashboardScreen(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
                         ) {
                             IconButton(onClick = { selectedAno-- }) {
                                 Text("<", color = MaterialTheme.colorScheme.onSurface)
                             }
-                            Text(selectedAno.toString(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 16.dp))
+                            Text(
+                                selectedAno.toString(),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                             IconButton(onClick = { selectedAno++ }) {
                                 Text(">", color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
-                        
+
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -291,18 +380,32 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             itemsIndexed(meses) { index, mes ->
-                                val isSelected = index == uiState.mesSelecionado && selectedAno == uiState.anoSelecionado
-                                val bgColor = if (isSelected) PrimaryAccent else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f)
-                                val textColor = if (isSelected) androidx.compose.ui.graphics.Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                
+                                val isSelected =
+                                    index == uiState.mesSelecionado && selectedAno == uiState.anoSelecionado
+                                val bgColor =
+                                    if (isSelected) PrimaryAccent else androidx.compose.ui.graphics.Color.White.copy(
+                                        alpha = 0.1f
+                                    )
+                                val textColor =
+                                    if (isSelected) androidx.compose.ui.graphics.Color.White else MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = 0.7f
+                                    )
+
                                 Box(
                                     modifier = Modifier
-                                        .background(color = bgColor, shape = RoundedCornerShape(12.dp))
+                                        .background(
+                                            color = bgColor,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
                                         .clickable { onSelecionarMesAno(index, selectedAno) }
                                         .padding(vertical = 12.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(text = mes, color = textColor, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = mes,
+                                        color = textColor,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }
@@ -323,49 +426,102 @@ private fun DashboardContent(
     onNavigateToExport: () -> Unit
 ) {
     var tooltipGasto by remember { mutableStateOf<GastoPessoa?>(null) }
-    
+    val context = LocalContext.current
+
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }
 
         item {
             com.trilhacusto.ui.components.GlassCard(
-                modifier = Modifier.fillMaxWidth().clickable { onNavigateToExtrato(null) }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToExtrato(null) }
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Column {
-                            Text(
-                                "Fatura Atual",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onAbrirConfiguracao() }) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    uiState.periodoFatura,
+                                    if (uiState.isFaturaFechada) "Fatura Fechada" else "Fatura Atual",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                                )
+                                if (uiState.isFaturaFechada) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            "Fechada",
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.85f),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    if (uiState.isFaturaFechada) {
+                                        Toast.makeText(
+                                            context,
+                                            "Esta fatura está fechada e suas datas não podem ser alteradas.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        onAbrirConfiguracao()
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    uiState.periodoFatura.replace(".", ""),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Icon(Icons.Default.Edit, contentDescription = "Configurar", tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
+                                Icon(
+                                    if (uiState.isFaturaFechada) Icons.Default.Lock else Icons.Default.Edit,
+                                    contentDescription = if (uiState.isFaturaFechada) "Fatura Fechada" else "Configurar",
+                                    tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(14.dp)
+                                )
                             }
                         }
                         val rotation by androidx.compose.animation.core.animateFloatAsState(
                             targetValue = if (uiState.showSyncLoading) 360f else 0f,
                             animationSpec = if (uiState.showSyncLoading) {
                                 androidx.compose.animation.core.infiniteRepeatable(
-                                    animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.LinearEasing),
+                                    animation = androidx.compose.animation.core.tween(
+                                        1000,
+                                        easing = androidx.compose.animation.core.LinearEasing
+                                    ),
                                     repeatMode = androidx.compose.animation.core.RepeatMode.Restart
                                 )
                             } else {
                                 androidx.compose.animation.core.tween(300)
                             }
                         )
-                        
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = onSincronizarPluggy, enabled = !uiState.showSyncLoading) {
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = onSincronizarPluggy,
+                                enabled = !uiState.showSyncLoading
+                            ) {
                                 Icon(
                                     Icons.Default.Refresh,
                                     contentDescription = "Sincronizar",
@@ -376,7 +532,11 @@ private fun DashboardContent(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
                         Column {
                             Text(
                                 uiState.faturaTotal.toCurrencyString(uiState.isPrivacyModeEnabled),
@@ -385,7 +545,10 @@ private fun DashboardContent(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                             if (uiState.lastSyncTime != null) {
-                                val sdf = java.text.SimpleDateFormat("dd/MM/yy', 'HH:mm", java.util.Locale("pt", "BR"))
+                                val sdf = java.text.SimpleDateFormat(
+                                    "dd/MM/yy', 'HH:mm",
+                                    java.util.Locale("pt", "BR")
+                                )
                                 val timeStr = sdf.format(java.util.Date(uiState.lastSyncTime))
                                 Text(
                                     text = "Última atualização $timeStr",
@@ -410,21 +573,35 @@ private fun DashboardContent(
         item {
             if (uiState.gastosPessoas.isNotEmpty()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()).height(IntrinsicSize.Min),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(androidx.compose.foundation.rememberScrollState())
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     uiState.gastosPessoas.forEach { gasto ->
                         val parsedColor = try {
-                            androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(gasto.pessoa.corHex))
+                            androidx.compose.ui.graphics.Color(
+                                android.graphics.Color.parseColor(
+                                    gasto.pessoa.corHex
+                                )
+                            )
                         } catch (e: Exception) {
                             com.trilhacusto.ui.theme.PrimaryAccent
                         }
-                        
+
                         com.trilhacusto.ui.components.GlassCard(
-                            modifier = Modifier.wrapContentWidth().fillMaxHeight().clickable { onNavigateToExtrato(gasto.pessoa.id) }
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .fillMaxHeight()
+                                .clickable { onNavigateToExtrato(gasto.pessoa.id) }
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(gasto.pessoa.nome, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                Text(
+                                    gasto.pessoa.nome,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
                                 Text(
                                     gasto.valor.toCurrencyString(uiState.isPrivacyModeEnabled),
                                     style = MaterialTheme.typography.titleLarge,
@@ -442,7 +619,9 @@ private fun DashboardContent(
 
         item {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -451,7 +630,7 @@ private fun DashboardContent(
                     modifier = Modifier.padding(bottom = 16.dp),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
-                
+
                 if (uiState.gastosPessoas.isEmpty() || uiState.gastosPessoas.all { it.proporcao <= 0f }) {
                     Box(
                         modifier = Modifier
@@ -471,7 +650,11 @@ private fun DashboardContent(
                             val prop = gasto.proporcao.coerceIn(0f, 1f)
                             if (prop > 0) {
                                 val parsedColor = try {
-                                    androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(gasto.pessoa.corHex))
+                                    androidx.compose.ui.graphics.Color(
+                                        android.graphics.Color.parseColor(
+                                            gasto.pessoa.corHex
+                                        )
+                                    )
                                 } catch (e: Exception) {
                                     com.trilhacusto.ui.theme.PrimaryAccent
                                 }
@@ -484,20 +667,21 @@ private fun DashboardContent(
                                         .fillMaxHeight()
                                         .background(brush)
                                         .clickable {
-                                            tooltipGasto = if (tooltipGasto == gasto) null else gasto
+                                            tooltipGasto =
+                                                if (tooltipGasto == gasto) null else gasto
                                         }
                                 )
                             }
                         }
                     }
-                    
+
                     androidx.compose.animation.AnimatedVisibility(
                         visible = tooltipGasto != null,
                         enter = androidx.compose.animation.fadeIn(),
                         exit = androidx.compose.animation.fadeOut()
                     ) {
                         tooltipGasto?.let { selectedGasto ->
-                            val pColor = when(selectedGasto.pessoa.nome.lowercase()) {
+                            val pColor = when (selectedGasto.pessoa.nome.lowercase()) {
                                 "gabriel" -> com.trilhacusto.ui.theme.ColorGabriel
                                 "pai" -> com.trilhacusto.ui.theme.ColorPai
                                 "mãe", "mae" -> com.trilhacusto.ui.theme.ColorMae
@@ -505,13 +689,23 @@ private fun DashboardContent(
                             }
                             val percent = (selectedGasto.proporcao * 100).toInt()
                             com.trilhacusto.ui.components.GlassCard(
-                                modifier = Modifier.padding(top = 12.dp).wrapContentWidth()
+                                modifier = Modifier
+                                    .padding(top = 12.dp)
+                                    .wrapContentWidth()
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 12.dp,
+                                        vertical = 6.dp
+                                    ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(modifier = Modifier.size(10.dp).clip(androidx.compose.foundation.shape.CircleShape).background(pColor))
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                            .background(pColor)
+                                    )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         "${selectedGasto.pessoa.nome}: $percent%",
@@ -529,7 +723,7 @@ private fun DashboardContent(
 
 
 
-        
+
         if (uiState.ultimasPendencias.isNotEmpty()) {
             item {
                 Text(
@@ -547,7 +741,7 @@ private fun DashboardContent(
                 )
             }
         }
-        
+
         item { Spacer(modifier = Modifier.height(16.dp)) }
     }
 }

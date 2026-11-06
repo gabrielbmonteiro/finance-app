@@ -29,13 +29,16 @@ class PendenciasViewModel(
                 combine(
                     transacaoDao.getTransacoesPendentes(),
                     configuracoesDao.getConfiguracoes()
-                ) { listaPendentes, config ->
-                    Pair(listaPendentes, config)
-                }.collect { (listaPendentes, config) ->
+                ) { listaTotal, config ->
+                    Pair(listaTotal, config)
+                }.collect { (listaTotal, config) ->
+                    val pendentes = listaTotal.filter { it.transacao.statusAtribuicao == "PENDENTE" }
+                    val excluidas = listaTotal.filter { it.transacao.statusAtribuicao == "IGNORADO" }
                     _uiState.update { currentState ->
                         currentState.copy(
                             isLoading = false,
-                            transacoesPendentes = listaPendentes,
+                            transacoesPendentes = pendentes,
+                            transacoesExcluidas = excluidas,
                             isPrivacyModeEnabled = config?.isPrivacyModeEnabled ?: false,
                             error = null
                         )
@@ -55,10 +58,19 @@ class PendenciasViewModel(
         _uiState.update { it.copy(termoBusca = texto) }
     }
 
+    fun atualizarBuscaExcluidas(texto: String) {
+        _uiState.update { it.copy(termoBuscaExcluidas = texto) }
+    }
+
     fun excluirTransacao(id: String) {
+        // Move para a lista de excluídas (statusAtribuicao = "IGNORADO")
         viewModelScope.launch {
             try {
-                transacaoDao.deleteTransacaoById(id)
+                val transacao = transacaoDao.getTransacaoById(id)
+                if (transacao != null) {
+                    transacaoDao.updateTransacao(transacao.copy(statusAtribuicao = "IGNORADO"))
+                    _uiState.update { it.copy(mensagemSucesso = "Pendência movida para excluídas") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Erro ao excluir: ${e.message}") }
             }
@@ -66,11 +78,13 @@ class PendenciasViewModel(
     }
 
     fun reativarTransacao(id: String) {
+        // Retira da exclusão e devolve para as pendências ativas
         viewModelScope.launch {
             try {
                 val transacao = transacaoDao.getTransacaoById(id)
                 if (transacao != null) {
                     transacaoDao.updateTransacao(transacao.copy(statusAtribuicao = "PENDENTE"))
+                    _uiState.update { it.copy(mensagemSucesso = "Pendência retirada da exclusão!") }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Erro ao reativar: ${e.message}") }
@@ -78,8 +92,24 @@ class PendenciasViewModel(
         }
     }
 
+    fun excluirDefinitivamente(id: String) {
+        // Exclui permanentemente do banco de dados
+        viewModelScope.launch {
+            try {
+                transacaoDao.deleteTransacaoById(id)
+                _uiState.update { it.copy(mensagemSucesso = "Pendência excluída permanentemente") }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Erro ao excluir definitivamente: ${e.message}") }
+            }
+        }
+    }
+
     fun limparErro() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun limparMensagemSucesso() {
+        _uiState.update { it.copy(mensagemSucesso = null) }
     }
 
     fun togglePrivacyMode() {
@@ -92,11 +122,6 @@ class PendenciasViewModel(
     }
 
     fun ignorarTransacao(id: String) {
-        viewModelScope.launch {
-            val transacao = transacaoDao.getTransacaoById(id)
-            if (transacao != null) {
-                transacaoDao.updateTransacao(transacao.copy(statusAtribuicao = "IGNORADO"))
-            }
-        }
+        excluirTransacao(id)
     }
 }

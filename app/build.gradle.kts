@@ -24,9 +24,21 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "PLUGGY_CLIENT_ID", "\"${localProperties.getProperty("PLUGGY_CLIENT_ID", "")}\"")
-        buildConfigField("String", "PLUGGY_CLIENT_SECRET", "\"${localProperties.getProperty("PLUGGY_CLIENT_SECRET", "")}\"")
-        buildConfigField("String", "PLUGGY_ACCOUNT_ID", "\"${localProperties.getProperty("PLUGGY_ACCOUNT_ID", "")}\"")
+        buildConfigField(
+            "String",
+            "PLUGGY_CLIENT_ID",
+            "\"${localProperties.getProperty("PLUGGY_CLIENT_ID", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "PLUGGY_CLIENT_SECRET",
+            "\"${localProperties.getProperty("PLUGGY_CLIENT_SECRET", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "PLUGGY_ACCOUNT_ID",
+            "\"${localProperties.getProperty("PLUGGY_ACCOUNT_ID", "")}\""
+        )
     }
 
     compileOptions {
@@ -36,7 +48,7 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -68,18 +80,18 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    
+
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
@@ -98,7 +110,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    
+
     // Koin
     implementation("io.insert-koin:koin-android:3.5.3")
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
@@ -110,7 +122,7 @@ dependencies {
     // Tests
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.9")
-    
+
     // Android Tests
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
