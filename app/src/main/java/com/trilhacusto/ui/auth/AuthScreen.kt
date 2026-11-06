@@ -254,7 +254,7 @@ fun AuthScreen(
                     }
                 },
                 title = "Redefinir Aplicativo",
-                text = "Como o Narrapay é 100% offline para garantir sua privacidade, a única forma de recuperar o acesso é resetando o app. Todos os dados locais (como categorias e transações manuais) serão apagados. Seus dados bancários poderão ser sincronizados novamente com a Pluggy. Deseja continuar?",
+                text = "Como o TrilhaCusto é 100% offline para garantir sua privacidade, a única forma de recuperar o acesso é resetando o app. Todos os dados locais (como categorias e transações manuais) serão apagados. Seus dados bancários poderão ser sincronizados novamente com a Pluggy. Deseja continuar?",
                 isDestructive = true
             )
         }

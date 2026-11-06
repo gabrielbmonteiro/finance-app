@@ -2,7 +2,7 @@
 # Por padrão, os componentes do Android (Activities, Services, etc) já são protegidos de ofuscação pelo plugin do Android.
 # Se estiver usando Retrofit com Gson, mantenha os DTOs que mapeiam JSON:
 
--keep class com.narrapay.data.remote.dto.** { *; }
+-keep class com.trilhacusto.data.remote.dto.** { *; }
 
 # Mantém as classes do Room
 -keep class * extends androidx.room.RoomDatabase
